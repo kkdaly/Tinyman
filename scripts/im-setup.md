@@ -151,4 +151,49 @@ echo '{"event":{"message":{"content":"{\"text\":\"测试\"}"}}}' > messages/test
 
 **原因：** 这是设计行为，不是 bug。`is_human_attached()` 检测到有人连在 session 上就跳过唤醒，防止 `send-keys` 打断你的键盘输入。
 
-**解决：** 看完后按 `Ctrl+B D` 脱离 session，msg-watcher 恢复唤醒。
+**解决：** 看完后按 `Ctrl+B D` 脱离 session，msg-watcher 恢复唤醒。（已在最新版中移除此保护，attach 时也正常唤醒。）
+
+### 7. tmux send-keys Enter 不生效
+
+**症状：** `tmux send-keys "text" Enter` 文本被打进 Claude Code 输入框但卡住不动，不提交执行。
+
+**原因：** Claude Code 的 TUI 不认 tmux 的 `Enter` 键名。`Enter` 在某些终端下是扩展键码，不被识别为提交。
+
+**修复：** 全部改用 `C-m`（ASCII 0x0D，物理回车键）。Linux/macOS 通用。
+
+### 8. 中文长文本 + C-m 被截断
+
+**症状：** 唤醒指令 30+ 中文字符时，文本出现在输入框但 C-m 不触发。
+
+**原因：** 中文长文本发送时 C-m 可能被 Claude Code 的输入处理吞掉，文本堆积但不提交。
+
+**修复：** 唤醒指令压缩到 10 字以内（"读messages并lark-cli回复"），且文本和 C-m 分开发送：
+```bash
+tmux send-keys -t session Escape
+tmux send-keys -t session "短指令"
+tmux send-keys -t session C-m
+```
+
+### 9. Agent 处理消息但不调用 API 回复
+
+**症状：** Agent 读消息、查知识库、写 worklog 都正常，但用户收不到回复。
+
+**原因：** AGENTS.md 里只写了"回答用户"，Agent 把"回答"理解为写 worklog。
+
+**修复：** 在 AGENTS.md 最前面加「回复用户的方式」小节，给出 `lark-cli api POST /open-apis/im/v1/messages` 的完整命令和从消息 JSON 提取 `open_id` 的步骤。
+
+### 10. Claude Code 权限弹窗阻塞
+
+**症状：** Agent 每执行一个 Bash 命令都弹"是否允许"，必须人工点确认。
+
+**原因：** Claude Code 安全机制——对文件操作、API 调用需用户审批。
+
+**修复：** 在 `.claude/settings.local.json` 的 `permissions.allow` 中加了消息读取、API 调用、worklog 写入的对应规则。遇到弹窗选 "Yes, and always allow" 永久放行。
+
+### 11. Claude Code Rewind 模式拦截输入
+
+**症状：** 脱离 session 后 msg-watcher 的 send-keys 全部无效，Agent 无响应。
+
+**原因：** Claude Code 在特定情况下进入 Rewind（回看历史）模式，输入被 Rewind UI 拦截。
+
+**修复：** msg-watcher 每次发唤醒指令前先发 `Escape` 清除模态状态。
