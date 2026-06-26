@@ -3,3 +3,4 @@
 worklogs/
 messages/*
 !messages/.gitkeep
+agent制作总结.md
