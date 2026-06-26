@@ -1,11 +1,16 @@
 #!/bin/bash
-# 一键部署 AI Oncall Agent — 小说阅读平台
+# 一键部署 AI Oncall Agent
 # 用法: ./scripts/deploy.sh
+# 配置: POLL_INTERVAL=1 POLL_COOLDOWN=15 ./scripts/deploy.sh
 
 set -e
 
+POLL_INTERVAL="${POLL_INTERVAL:-1}"      # msg-watcher 轮询间隔（秒），默认 1
+POLL_COOLDOWN="${POLL_COOLDOWN:-15}"     # 唤醒冷却时间（秒），默认 15
+
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 echo "==> 部署目录: $ROOT_DIR"
+echo "==> 轮询间隔: ${POLL_INTERVAL}s / 冷却: ${POLL_COOLDOWN}s"
 
 # ── 1. 检查 tmux ──
 if ! command -v tmux &>/dev/null; then
@@ -60,8 +65,8 @@ echo "==> 在 supervisor 会话中启动监工循环..."
 tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" C-m
 
 # ── 7. 启动消息流水线 ──
-echo "==> 启动消息流水线（后台，1s 轮询）..."
-nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep 1; done" > /dev/null 2>&1 &
+echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."
+POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   msg-watcher PID: $!"
 
 # ── 8. 输出状态 ──

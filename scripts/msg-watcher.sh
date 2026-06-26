@@ -4,6 +4,7 @@
 
 MESSAGES_DIR="$(dirname "$0")/../messages"
 AGENT_SESSION="oncall-agent"
+COOLDOWN_SEC="${POLL_COOLDOWN:-15}"  # 唤醒冷却时间（秒），默认 15
 
 # 检测 Agent 是否忙碌
 is_agent_busy() {
@@ -51,7 +52,7 @@ main() {
         last_wake=$(cat "$cooldown_file" 2>/dev/null)
         now=$(date +%s)
         elapsed=$((now - last_wake))
-        if [ "$elapsed" -lt 15 ]; then
+        if [ "$elapsed" -lt "$COOLDOWN_SEC" ]; then
             return
         fi
     fi
