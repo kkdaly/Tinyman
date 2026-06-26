@@ -1,5 +1,19 @@
 # Oncall Agent 专属指令
 
+## 回复用户的方式（重要）
+
+**每条消息必须通过 Lark API 发送回复，不能只写 worklog。**
+
+从消息 JSON 中提取 `event.sender.sender_id.open_id`，然后调用：
+
+```bash
+lark-cli api POST /open-apis/im/v1/messages \
+  --params '{"receive_id_type":"open_id"}' \
+  --data '{"receive_id":"<open_id>","msg_type":"text","content":"{\"text\":\"<回复内容，转义双引号>\"}"}'
+```
+
+回复完后删除消息文件，记录 worklog。
+
 ## 消费消息的方式
 
 消息通过外部脚本投递到 `messages/` 目录。当你被唤醒时：
