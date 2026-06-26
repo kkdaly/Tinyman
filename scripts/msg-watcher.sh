@@ -56,11 +56,6 @@ main() {
         fi
     fi
 
-    # 有人工 attach → 不干预
-    if is_human_attached; then
-        return
-    fi
-
     # Agent 忙碌 → 等下一轮
     if is_agent_busy; then
         return
