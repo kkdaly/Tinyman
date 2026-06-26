@@ -71,7 +71,8 @@
       "Write(worklogs/**)",
       "Bash(tmux kill-session *)",
       "Bash(ls *)",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(xxd)"
     ]
   },
   "compactOnStart": true,
