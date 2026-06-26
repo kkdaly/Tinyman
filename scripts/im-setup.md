@@ -1,52 +1,53 @@
-# IM 消息订阅配置指南
+# Lark 消息订阅配置
 
-根据你选择的 IM 平台完成以下配置：
+## 已就绪
 
-## Lark（飞书）
+- `lark-cli` 已安装 (v1.0.58)
+- 消息订阅命令: `lark-cli event +subscribe`
 
-```bash
-# 安装 Lark CLI
-# 订阅消息到 messages/ 目录
-lark-cli event subscribe --output-dir messages/
-```
+## 需要你完成
 
-需要先创建 Lark App 并配置权限：
+### 1. 创建 Lark App
+
+前往 https://open.larksuite.com/ 创建应用，获取 App ID 和 App Secret。
+
+### 2. 配置权限
+
+在 Lark 开放平台为你的 App 添加以下权限：
 - `im:message:readonly` — 读取消息
 - `im:message.group_at_msg.include_bot:readonly` — 接收群内 at Bot 消息
-- 配置 Event Subscription 指向你的服务器
 
-## Slack
-
-```bash
-# 使用 Slack CLI 或 webhook
-# 将消息写入 messages/ 目录
-```
-
-需要创建 Slack App 并配置：
-- Event Subscriptions（message.channels, message.groups）
-- OAuth tokens
-
-## 通用方式：Webhook
-
-如果没有 CLI 工具，可以通过 Webhook 接收消息：
+### 3. 初始化 Lark CLI
 
 ```bash
-# 启动一个简单的 HTTP server 接收 webhook
-# 将消息体写入 messages/ 目录
-# 示例：ncat -l -p 8080 -c 'cat > messages/$(date +%s).json'
+lark-cli config init
+# 按提示输入 App ID 和 App Secret
 ```
 
-## 配置完成后
-
-将 msg-watcher.sh 加入定时运行：
+### 4. 授权登录
 
 ```bash
-# 方式一：cron 每 30 秒
-# */1 * * * * /path/to/scripts/msg-watcher.sh
-# */1 * * * * sleep 30 && /path/to/scripts/msg-watcher.sh
-
-# 方式二：后台 while 循环
-# nohup bash -c 'while true; do /path/to/scripts/msg-watcher.sh; sleep 30; done' &
-
-# 方式三：systemd timer
+lark-cli auth login --recommend
 ```
+
+### 5. 启动消息订阅
+
+```bash
+# 订阅消息到 messages/ 目录
+lark-cli event +subscribe --output-dir messages/
+```
+
+### 6. 启动消息流水线
+
+```bash
+# 后台循环运行 msg-watcher
+nohup bash -c 'while true; do ./scripts/msg-watcher.sh; sleep 30; done' &
+```
+
+## 回复通道
+
+消息回复有两种方式：
+1. 在 Agent 的 loop prompt 中通过 lark-cli 直接回复
+2. 在 supervisor prompt 中加入 lark message send 命令
+
+具体 reply 方式在 lark-cli config init 后根据可用的 send 命令调整。
