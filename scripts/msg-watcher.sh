@@ -11,20 +11,17 @@ is_agent_busy() {
     output=$(tmux capture-pane -t "$AGENT_SESSION" -p -S -20 2>/dev/null)
 
     if [ -z "$output" ]; then
-        # 无输出 = 可能刚启动，不算忙碌
-        return 1
+        return 1  # 无输出 = 不算忙碌
     fi
 
-    local last_line
-    last_line=$(echo "$output" | tail -1)
-
-    # 如果最后一行以常见的 prompt 结尾（如 $ # > ），说明空闲
-    if echo "$last_line" | grep -qE '[$#>] $'; then
+    # 最后 5 行中有 Claude Code 的 ❯ prompt 或 shell prompt ($ # >) → 空闲
+    local recent
+    recent=$(echo "$output" | tail -5)
+    if echo "$recent" | grep -qE '(❯|[$#>] )'; then
         return 1  # 空闲
     fi
 
-    # 否则假定忙碌
-    return 0
+    return 0  # 忙碌
 }
 
 # 检查是否有人工 attach
