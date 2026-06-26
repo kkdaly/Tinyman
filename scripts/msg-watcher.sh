@@ -37,6 +37,11 @@ is_human_attached() {
 
 # 主循环
 main() {
+    # tmux 不可用则静默退出
+    if ! command -v tmux &>/dev/null; then
+        exit 0
+    fi
+
     # 检查是否有新消息
     local msg_count
     msg_count=$(find "$MESSAGES_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')
