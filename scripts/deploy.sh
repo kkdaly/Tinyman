@@ -53,8 +53,7 @@ done
 # ── 5. 启动 Oncall Agent ──
 echo "==> 在 oncall-agent 会话中启动 Claude Code..."
 tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" Enter
-# Agent 是事件驱动：msg-watcher 检测到新消息后通过 tmux send-keys 注入唤醒指令
-# 不设 /loop（长时间空转会消耗 token 和上下文）
+# 不设 /loop —— 由外部 msg-watcher 通过 tmux send-keys 事件驱动唤醒，避免空转消耗 token
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
