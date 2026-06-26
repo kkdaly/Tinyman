@@ -7,7 +7,6 @@ AGENT_SESSION="oncall-agent"
 
 # 检测 Agent 是否忙碌
 is_agent_busy() {
-    # 获取 oncall-agent 最后 20 行输出
     local output
     output=$(tmux capture-pane -t "$AGENT_SESSION" -p -S -20 2>/dev/null)
 
@@ -16,8 +15,6 @@ is_agent_busy() {
         return 1
     fi
 
-    # 检查最后一行的时间戳是否在最近 120 秒内
-    # 这里用简单启发式：最后一行是否看起来像 AI 正在输出（不以命令提示符结尾）
     local last_line
     last_line=$(echo "$output" | tail -1)
 
@@ -26,7 +23,7 @@ is_agent_busy() {
         return 1  # 空闲
     fi
 
-    # 否则假定忙碌（正在输出）
+    # 否则假定忙碌
     return 0
 }
 
