@@ -1,0 +1,111 @@
+<h2>消息消费流水线</h2>
+<p class="subtitle">订阅 → 通知 → 检测 → 唤醒 → 批量处理 — 五个环节各司其职</p>
+
+<div class="section">
+  <h3>流水线全景</h3>
+  <div class="mockup">
+    <div class="mockup-header">Pipeline: 从用户消息到 Agent 响应的完整链路</div>
+    <div class="mockup-body" style="font-size:14px;line-height:1.8">
+      <pre style="background:#1a1a2e;color:#e0e0e0;padding:16px;border-radius:8px;margin:0">
+ 用户发消息
+     │
+     ▼
+┌──────────────────────────────────────────────────────┐
+│ 1. 订阅 → 通知                                        │
+│    IM 消息落地到目录，外部脚本监控目录变化               │
+│    不依赖 Harness，独立于 Agent 运行                    │
+└──────────────────────┬───────────────────────────────┘
+                       │ 有新文件
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ 2. 通知 → 检测                                        │
+│    检查 Agent 是否忙碌（正在处理上一条消息）              │
+│    检查是否有人工 attach 到 tmux（人工正在介入）          │
+│    推荐方式：AI 判断 + 规则兜底                         │
+└──────────────────────┬───────────────────────────────┘
+                       │ Agent 空闲
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ 3. 检测 → 唤醒                                        │
+│    通过 tmux send-keys 向 Agent session 发送唤醒指令    │
+│    注入"回忆关键原则"的 prompt snippet                  │
+│    这里是防止模型遗忘核心规则的最佳时机                   │
+└──────────────────────┬───────────────────────────────┘
+                       │ Agent 被唤醒
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│ 4. 唤醒 → 批量处理                                     │
+│    Agent 一次性读取积压消息（而非逐条处理）              │
+│    对同一用户的连续提问关联上下文                        │
+│    跨用户消息隔离理解，避免张冠李戴                       │
+└──────────────────────┬───────────────────────────────┘
+                       │
+                       ▼
+                    归档 + 回复
+      </pre>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>各环节的职责边界</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">由外部脚本负责</div>
+      <div class="mockup-body" style="font-size:14px">
+        <ul>
+          <li>① 订阅：监控 IM 消息目录</li>
+          <li>② 通知：感知新消息到来</li>
+          <li>③ 检测：判断 Agent 状态</li>
+          <li>④ 唤醒：send-keys 触发</li>
+        </ul>
+        <p style="margin-top:12px;color:#888;font-size:13px">轻量脚本，不依赖 AI<br>可以用任何语言实现</p>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">由 AI Agent 负责</div>
+      <div class="mockup-body" style="font-size:14px">
+        <ul>
+          <li>⑤ 批量处理：读取 + 理解 + 回复</li>
+          <li>⑥ 归档：写入 worklog</li>
+          <li>⑦ 需要时 escalate 到其他角色</li>
+        </ul>
+        <p style="margin-top:12px;color:#888;font-size:13px">AI 专注处理消息本身<br>不被通知逻辑污染上下文</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>关键设计决策</h3>
+  <div class="pros-cons">
+    <div class="pros"><h4>为什么把 ①-④ 抽出到外部脚本？</h4>
+      <ul>
+        <li>不消耗 Agent 的上下文窗口</li>
+        <li>检测逻辑简单，不需要大模型</li>
+        <li>唤醒时可注入"回忆关键原则"prompt</li>
+        <li>换 Harness 时脚本不用改</li>
+      </ul>
+    </div>
+    <div class="cons"><h4>批量处理 vs 逐条处理</h4>
+      <ul>
+        <li>逐条：响应快但丢失用户多轮上下文</li>
+        <li>批量：Agent 能看到同一用户的多条消息</li>
+        <li>实现：脚本收集积压消息，一次性传给 Agent</li>
+        <li>代价：用户可能多等几秒</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="pros-cons">
+    <div class="pros"><h4>检测环节的两种实现</h4>
+      <ul>
+        <li><strong>AI 判断（推荐）：</strong>用一个小模型看 Agent 的 recent output，判断"是否在处理中"——效果好，能感知语义上的忙碌</li>
+        <li><strong>规则兜底：</strong>上次回复超过 N 秒未更新 → 判定空闲。简单，但可能误判</li>
+        <li><strong>组合：</strong>AI 判断为主，规则兜底为辅。小模型 + 明确规则，避免误判打断人工</li>
+      </ul>
+    </div>
+  </div>
+</div>

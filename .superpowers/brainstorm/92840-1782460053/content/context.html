@@ -1,0 +1,131 @@
+<h2>上下文工程：知识库 + 提示词 + Worklog</h2>
+<p class="subtitle">决定 AI Agent 回答质量的核心不是模型，而是它"看到了什么"</p>
+
+<div class="section">
+  <h3>三层上下文架构</h3>
+  <div class="mockup">
+    <div class="mockup-header">Agent 的上下文金字塔</div>
+    <div class="mockup-body" style="font-size:14px;line-height:1.8">
+      <pre style="background:#1a1a2e;color:#e0e0e0;padding:16px;border-radius:8px;margin:0">
+                    ┌─────────────────┐
+                    │   Prompt 层      │  ← 最小、最核心、强制回忆
+                    │   (CLAUDE.md等)  │
+                    ├─────────────────┤
+                    │                  │
+                    │   知识库层       │  ← 可信文档 + 代码索引
+                    │   (按需加载)     │
+                    │                  │
+                    ├─────────────────┤
+                    │                  │
+                    │   代码仓库层     │  ← 直接读源码，不通过 RAG
+                    │   (按需浏览)     │
+                    │                  │
+                    ├─────────────────┤
+                    │                  │
+                    │   Worklog 层     │  ← 每日记录，跨天压缩
+                    │   (历史上下文)    │
+                    │                  │
+                    └─────────────────┘
+      </pre>
+      <p style="margin-top:12px;font-size:13px;color:#aaa">原则：Prompt 越少越好，知识库越可信越好，代码直接读，Worklog 及时压缩 —— 防止上下文膨胀导致质量塌陷</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>知识库设计原则</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-body">
+        <h3>1. 可信优先</h3>
+        <p>所有内容必须人工校对确认。<br>宁可缺，不可错。<br>错误的知识库是在给 AI 投毒。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3>2. 代码自解释</h3>
+        <p>代码能读出的"做了什么"，<br>不要再写文档。<br>减少维护负担，避免文档腐化。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3>3. 补充 WHY</h3>
+        <p>"为什么这么做"、"踩过哪些坑"<br>这类只有人知道的隐性知识<br>必须在文档或注释里写下来。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3>4. 结构化索引</h3>
+        <p>用 markdown 描述：有哪些仓库、<br>什么场景看哪些。<br>加速 AI 定位正确的代码位置。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Prompt 优化：keep / cut / merge / move</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">精简前 (100k+ token)</div>
+      <div class="mockup-body" style="font-size:13px">
+        <p style="color:#e74c3c">症状：</p>
+        <ul>
+          <li>上下文一长就开始不遵循 prompt</li>
+          <li>compaction 后有损总结丢失关键信息</li>
+          <li>不知道哪些 prompt 真正有用</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">精简后 (原 1/3)</div>
+      <div class="mockup-body" style="font-size:13px">
+        <p style="color:#2ecc71">四步循环：</p>
+        <ol>
+          <li><strong>Keep:</strong> 去掉就出错的，保留</li>
+          <li><strong>Cut:</strong> 不提示模型也能做好的，删</li>
+          <li><strong>Merge:</strong> 意思相近的，合并</li>
+          <li><strong>Move:</strong> 同类放一起，结构化</li>
+        </ol>
+        <p style="color:#888;font-size:12px">反复迭代 2-3 轮，效果就稳定了</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>强制回忆机制（关键技巧）</h3>
+  <div class="mockup">
+    <div class="mockup-header">防止模型遗忘核心原则的最后防线</div>
+    <div class="mockup-body" style="font-size:14px">
+      <p>每次唤醒 Agent 消费新消息时，<strong>强制注入几十个 token</strong>：</p>
+      <pre style="background:#1a1a2e;color:#e0e0e0;padding:16px;border-radius:8px;margin:12px 0">
+"在回复用户之前，先回忆以下最重要的几点：
+ 1. 所有回答必须基于可信知识库和代码——禁止编造
+ 2. 如果答案不在知识库里，明确告知用户并记录下来
+ 3. 不要猜测代码行为——直接读源码确认
+ 4. ..."
+      </pre>
+      <p style="font-size:13px;color:#aaa">同理也适用于监工 Agent：每次检查时强制回忆"什么算异常、何时告警"，确保行为一致性</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Worklog 管理</h3>
+  <div class="pros-cons">
+    <div class="pros"><h4>记录策略</h4>
+      <ul>
+        <li>每次问答都记录，每天一个文件</li>
+        <li>跨天时压缩：保留有价值内容，合并冗余</li>
+        <li>有 AI 自动压缩 + 人工抽查关键条目</li>
+      </ul>
+    </div>
+    <div class="cons"><h4>注意</h4>
+      <ul>
+        <li>不要让 Harness 自己管理 worklog——容易被投毒</li>
+        <li>worklog 是给 Agent 回顾用的，不是给 RAG 检索的</li>
+        <li>压缩是有损的，核心知识点应进入知识库而非依赖 worklog</li>
+      </ul>
+    </div>
+  </div>
+</div>
