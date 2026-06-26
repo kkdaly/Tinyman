@@ -64,8 +64,7 @@ main() {
     # Agent 空闲 + 有消息 + 无人工 → 唤醒
     date +%s > "$cooldown_file"
     tmux send-keys -t "$AGENT_SESSION" Escape
-    # 短指令 + 单独 C-m（长中文文本会导致 C-m 不被识别）
-    tmux send-keys -t "$AGENT_SESSION" "处理 messages/ 中的新消息并回复用户。基于知识库和代码，禁止编造。"
+    tmux send-keys -t "$AGENT_SESSION" "处理新消息并回复"
     tmux send-keys -t "$AGENT_SESSION" C-m
 }
 
