@@ -52,12 +52,12 @@ done
 
 # ── 5. 启动 Oncall Agent ──
 echo "==> 在 oncall-agent 会话中启动 Claude Code..."
-tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" Enter
+tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" C-m
 # 不设 /loop —— 由外部 msg-watcher 通过 tmux send-keys 事件驱动唤醒，避免空转消耗 token
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
-tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" Enter
+tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" C-m
 
 # ── 7. 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，1s 轮询）..."

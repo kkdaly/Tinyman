@@ -69,7 +69,7 @@ main() {
     # Agent 空闲 + 有消息 + 无人工 → 唤醒
     date +%s > "$cooldown_file"
     local wake_prompt="请检查 messages/ 目录中的 $msg_count 条新消息，逐条处理后回复用户。回忆核心原则：回答基于知识库和代码，禁止编造。"
-    tmux send-keys -t "$AGENT_SESSION" "$wake_prompt" Enter
+    tmux send-keys -t "$AGENT_SESSION" "$wake_prompt" C-m
 }
 
 main
