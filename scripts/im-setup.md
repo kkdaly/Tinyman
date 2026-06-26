@@ -80,6 +80,17 @@ echo '{"event":{"message":{"content":"{\"text\":\"测试\"}"}}}' > messages/test
 # 等 1-2 秒，检查 Agent 是否处理
 ```
 
+## 切换 Agent 角色
+
+```bash
+./scripts/switch-agent.sh list                # 查看可用角色
+./scripts/switch-agent.sh code-review         # 切换到 Code Review Agent
+./scripts/switch-agent.sh deploy-monitor      # 切换到发布巡检 Agent
+./scripts/switch-agent.sh oncall-novels       # 切回 Oncall Agent
+```
+
+切换后 Agent 自动收到通知重新加载配置。详见 `AGENTS.md`。
+
 ## 日常操作
 
 | 操作 | 命令 |
