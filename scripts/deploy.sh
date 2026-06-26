@@ -31,11 +31,11 @@ fi
 echo "==> lark-cli: $(lark-cli --version 2>/dev/null || echo '请手动运行 lark-cli config init')"
 
 # ── 3. 检查知识库和仓库 ──
-if [ ! -f "$ROOT_DIR/knowledge-base/novels-platform.md" ]; then
-    echo "⚠ 知识库文件缺失: knowledge-base/novels-platform.md"
+if [ ! -f "$ROOT_DIR/knowledge-base/your-project.md" ]; then
+    echo "⚠ 知识库: 请先编辑 knowledge-base/your-project.md 填入项目信息"
 fi
-if [ ! -d "$ROOT_DIR/repos/novels" ]; then
-    echo "⚠ 代码仓库未关联: repos/novels/ — 请先 clone 或 symlink"
+if [ -z "$(ls -A "$ROOT_DIR/repos" 2>/dev/null)" ]; then
+    echo "⚠ 代码仓库: 请先 symlink 你的代码仓库到 repos/"
 fi
 
 # ── 4. 创建 tmux 会话 ──

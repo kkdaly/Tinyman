@@ -1,4 +1,4 @@
-# 小说阅读平台 AI Oncall Agent — 部署指南
+# AI Oncall Agent — 部署指南
 
 ## 架构概览
 

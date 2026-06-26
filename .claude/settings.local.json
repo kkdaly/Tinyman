@@ -72,7 +72,9 @@
       "Bash(tmux kill-session *)",
       "Bash(ls *)",
       "Bash(find *)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(cp /Users/kkdaly/Desktop/test/.claude/CLAUDE.md /Users/kkdaly/Desktop/test/roles/oncall-template/CLAUDE.md)",
+      "Bash(rm /Users/kkdaly/Desktop/test/repos/novels)"
     ]
   },
   "compactOnStart": true,
