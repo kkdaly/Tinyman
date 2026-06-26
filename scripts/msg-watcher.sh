@@ -38,10 +38,22 @@ main() {
 
     # 检查是否有新消息
     local msg_count
-    msg_count=$(find "$MESSAGES_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')
+    msg_count=$(find "$MESSAGES_DIR" -type f -not -name '.gitkeep' 2>/dev/null | wc -l | tr -d ' ')
 
     if [ "$msg_count" -eq 0 ]; then
         return
+    fi
+
+    # 冷却期：上次唤醒后 15 秒内不再发，防止指令轰炸
+    local cooldown_file="/tmp/msg_watcher_cooldown"
+    if [ -f "$cooldown_file" ]; then
+        local last_wake now elapsed
+        last_wake=$(cat "$cooldown_file" 2>/dev/null)
+        now=$(date +%s)
+        elapsed=$((now - last_wake))
+        if [ "$elapsed" -lt 15 ]; then
+            return
+        fi
     fi
 
     # 有人工 attach → 不干预
@@ -55,6 +67,7 @@ main() {
     fi
 
     # Agent 空闲 + 有消息 + 无人工 → 唤醒
+    date +%s > "$cooldown_file"
     local wake_prompt="请检查 messages/ 目录中的 $msg_count 条新消息，逐条处理后回复用户。回忆核心原则：回答基于知识库和代码，禁止编造。"
     tmux send-keys -t "$AGENT_SESSION" "$wake_prompt" Enter
 }
