@@ -15,10 +15,16 @@ is_agent_busy() {
         return 1  # 无输出 = 不算忙碌
     fi
 
-    # 最后 5 行中有 Claude Code 的 ❯ prompt 或 shell prompt ($ # >) → 空闲
     local recent
-    recent=$(echo "$output" | tail -5)
-    if echo "$recent" | grep -qE '(❯|[$#>] )'; then
+    recent=$(echo "$output" | tail -8)
+
+    # Agent 正在处理中 → 忙碌（Claude Code 的状态提示词）
+    if echo "$recent" | grep -qE '(thinking|· still|Esc to interrupt|ctrl\+o to expand|Do you want to|Waiting…)'; then
+        return 0  # 忙碌
+    fi
+
+    # 最后 3 行中有 ❯ 或 shell prompt → 空闲
+    if echo "$recent" | tail -3 | grep -qE '(❯|[$#>] )'; then
         return 1  # 空闲
     fi
 
