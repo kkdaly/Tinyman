@@ -100,13 +100,24 @@ if [ "$HARNESS" = "claude" ]; then
     fi
 fi
 
-# ── 1. 检查知识库和仓库 ──
-if [ ! -f "$ROOT_DIR/knowledge-base/your-project.md" ]; then
-    echo "⚠ 知识库: 请先编辑 knowledge-base/your-project.md 填入项目信息"
-fi
-if [ -z "$(ls -A "$ROOT_DIR/repos" 2>/dev/null)" ]; then
-    echo "⚠ 代码仓库: 请先 symlink 你的代码仓库到 repos/"
-fi
+# ── 1. 首次使用提示 ──
+echo ""
+echo "  部署完成后，Agent 就能跑。但要真正用好，你需要:"
+echo ""
+echo "  1. 填知识库"
+echo "     knowledge-base/your-project.md   ← 你的项目是什么、怎么排查问题"
+echo ""
+echo "  2. 关联代码（可选）"
+echo "     ln -s /your/repo repos/          ← Agent 会直接读源码回答"
+echo ""
+echo "  3. 改 Agent 身份（可选）"
+echo "     agents/gateway-agent/CLAUDE.md   ← 改 Agent 的角色定位"
+echo "     agents/gateway-agent/AGENTS.md   ← 改回复方式、IM 命令"
+echo ""
+echo "  4. 消息来源"
+echo "     飞书: 创建应用 → 订阅消息 → lark-cli event +subscribe"
+echo "     通用: 任何方式往 messages/ 写 JSON 文件都能触发"
+echo ""
 
 # ── 4. 创建 tmux 会话 ──
 echo "==> 创建 tmux 会话..."
