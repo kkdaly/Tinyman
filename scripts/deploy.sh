@@ -125,6 +125,9 @@ echo ""
 echo "  或者 attach 到 gateway-agent，AI 会帮你配置:"
 echo "    tmux attach -t gateway-agent"
 echo ""
+echo "  已配置后想改？在 IM 里跟 Agent 说一句就行，"
+echo "  比如 \"帮我改成编译排障助手\"，Agent 会自己改文件。"
+echo ""
 
 # ── 4. 创建 tmux 会话 ──
 echo "==> 创建 tmux 会话..."
