@@ -8,4 +8,7 @@ repos/*
 !repos/.gitkeep
 agent制作总结.md
 .claude/settings.local.json
+.codex/
+.trae/
+.openclaw/
 agents/gateway-agent/CLAUDE.md

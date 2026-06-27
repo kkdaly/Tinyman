@@ -2,6 +2,10 @@
 # Harness 预设配置
 # 用法: source scripts/harness-presets.sh
 #       HARNESS=codex deploy.sh  # 或 export HARNESS=codex
+#
+# 注意: Claude Code 已在生产验证。Codex/Trae/OpenClaw 的 busy/idle
+# 正则为理论值，首次使用可能需要根据实际 UI 输出调整。
+# 首次条款自动接受仅支持 Claude Code，其他 harness 需手动处理。
 
 HARNESS="${HARNESS:-claude}"
 
