@@ -17,7 +17,7 @@ POLL_COOLDOWN="${POLL_COOLDOWN:-15}"
 
 # 首次部署：从默认模板创建 CLAUDE.md（后续重跑不覆盖）
 if [ ! -f "$ROOT_DIR/agents/gateway-agent/CLAUDE.md" ]; then
-    cp "$ROOT_DIR/agents/gateway-agent/CLAUDE.default.md" "$ROOT_DIR/agents/gateway-agent/CLAUDE.md"
+    cp "$ROOT_DIR/agents/gateway-agent/IDENTITY.default.md" "$ROOT_DIR/agents/gateway-agent/CLAUDE.md"
 fi
 
 echo "╔══════════════════════════════════════╗"
