@@ -30,14 +30,14 @@ lark-cli api POST /open-apis/im/v1/messages \
 
 ## 处理中反馈（重要）
 
-**读消息后立刻发送 👀 表情反应，告知用户已在处理。**
+**读消息后立刻发送表情反应，告知用户已在处理。**
 
 ```bash
 lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
-  --data '{"reaction_type":{"emoji_type":"EYES"}}'
+  --data '{"reaction_type":{"emoji_type":"THUMBSUP"}}'
 ```
 
-`message_id` 从消息 JSON 的 `event.message.message_id` 字段提取。
+`message_id` 从消息 JSON 的 `event.message.message_id` 字段提取。注意 `emoji_type` 必须是 Lark 支持的类型（如 THUMBSUP、OK、HEART 等），某些 emoji 不被支持。
 
 ## AI 路由分发（重要）
 
