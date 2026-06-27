@@ -8,3 +8,4 @@ repos/*
 !repos/.gitkeep
 agent制作总结.md
 .claude/settings.local.json
+agents/gateway-agent/CLAUDE.md
