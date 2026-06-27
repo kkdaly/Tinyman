@@ -1,5 +1,5 @@
 #!/bin/bash
-# 一键部署 AI Agent 平台
+# 一键部署 AI Agent 平台（含首次引导）
 # 用法: ./scripts/deploy.sh                           # 默认 Claude Code
 #       HARNESS=codex ./scripts/deploy.sh              # Codex CLI
 #       HARNESS=trae ./scripts/deploy.sh               # Trae CLI
@@ -12,37 +12,72 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 # ── 加载 Harness 预设 ──
 source "$ROOT_DIR/scripts/harness-presets.sh"
 
-POLL_INTERVAL="${POLL_INTERVAL:-1}"      # msg-watcher 轮询间隔（秒），默认 1
-POLL_COOLDOWN="${POLL_COOLDOWN:-15}"     # 唤醒冷却时间（秒），默认 15
+POLL_INTERVAL="${POLL_INTERVAL:-1}"
+POLL_COOLDOWN="${POLL_COOLDOWN:-15}"
 
-echo "==> 部署目录: $ROOT_DIR"
+echo "╔══════════════════════════════════════╗"
+echo "║  AI Agent 平台 — 一键部署           ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
 echo "==> Harness: $HARNESS_NAME"
 echo "==> 轮询间隔: ${POLL_INTERVAL}s / 冷却: ${POLL_COOLDOWN}s"
 
-# ── 1. 检查 tmux ──
+# ── 0. 检查依赖 ──
+echo "==> 检查依赖..."
+
 if ! command -v tmux &>/dev/null; then
-    echo "==> tmux 未安装，尝试安装..."
-    if command -v apt &>/dev/null; then
-        sudo apt update && sudo apt install -y tmux
-    elif command -v yum &>/dev/null; then
-        sudo yum install -y tmux
-    elif command -v brew &>/dev/null; then
-        brew install tmux
-    else
-        echo "请手动安装 tmux: https://github.com/tmux/tmux/wiki/Installing"
+    echo "   tmux 未安装，尝试安装..."
+    if command -v apt &>/dev/null; then sudo apt update && sudo apt install -y tmux
+    elif command -v yum &>/dev/null; then sudo yum install -y tmux
+    elif command -v brew &>/dev/null; then brew install tmux
+    else echo "请手动安装 tmux: https://github.com/tmux/tmux/wiki/Installing"; exit 1
+    fi
+fi
+echo "   ✓ tmux $(tmux -V 2>/dev/null | head -1)"
+
+case "$HARNESS" in
+    claude) command -v claude &>/dev/null || { echo "   ✗ claude 未安装: npm install -g @anthropic-ai/claude-code"; exit 1; } ;;
+    codex)  command -v codex &>/dev/null || { echo "   ✗ codex 未安装"; exit 1; } ;;
+    trae)   command -v trae &>/dev/null || { echo "   ✗ trae 未安装"; exit 1; } ;;
+esac
+echo "   ✓ $HARNESS_NAME"
+
+# ── 0b. Claude Code 首次条款 ──
+if [ "$HARNESS" = "claude" ]; then
+    echo "==> 检查首次运行条款..."
+    BOOTSTRAP_SESSION="bootstrap-$$"
+    tmux new-session -d -s "$BOOTSTRAP_SESSION" -c "$ROOT_DIR" 2>/dev/null
+    tmux send-keys -t "$BOOTSTRAP_SESSION" "claude --dangerously-skip-permissions" C-m
+
+    ACCEPTED=false
+    for i in $(seq 1 15); do
+        sleep 1
+        pane=$(tmux capture-pane -t "$BOOTSTRAP_SESSION" -p -S -10 2>/dev/null)
+        if echo "$pane" | grep -q "I accept"; then
+            echo "   ⚡ 自动接受条款..."
+            tmux send-keys -t "$BOOTSTRAP_SESSION" Down Enter
+            sleep 3
+            ACCEPTED=true
+            break
+        fi
+        if echo "$pane" | grep -qE '(❯|▸)'; then
+            echo "   ✓ 条款已接受（跳过）"
+            ACCEPTED=true
+            break
+        fi
+    done
+
+    tmux send-keys -t "$BOOTSTRAP_SESSION" C-c C-c 2>/dev/null; sleep 1
+    tmux send-keys -t "$BOOTSTRAP_SESSION" "exit" C-m 2>/dev/null; sleep 1
+    tmux kill-session -t "$BOOTSTRAP_SESSION" 2>/dev/null
+
+    if [ "$ACCEPTED" = false ]; then
+        echo "   ✗ 条款接受超时，手动运行 claude 一次后重试"
         exit 1
     fi
 fi
-echo "==> tmux: $(tmux -V)"
 
-# ── 2. 检查 lark-cli ──
-if ! command -v lark-cli &>/dev/null; then
-    echo "==> lark-cli 未安装，正在安装..."
-    npm install -g @larksuite/cli
-fi
-echo "==> lark-cli: $(lark-cli --version 2>/dev/null || echo '请手动运行 lark-cli config init')"
-
-# ── 3. 检查知识库和仓库 ──
+# ── 1. 检查知识库和仓库 ──
 if [ ! -f "$ROOT_DIR/knowledge-base/your-project.md" ]; then
     echo "⚠ 知识库: 请先编辑 knowledge-base/your-project.md 填入项目信息"
 fi
