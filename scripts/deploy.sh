@@ -16,9 +16,11 @@ POLL_INTERVAL="${POLL_INTERVAL:-1}"
 POLL_COOLDOWN="${POLL_COOLDOWN:-15}"
 
 # 首次部署：从默认模板创建 IDENTITY.md（后续重跑不覆盖）
-if [ ! -f "$ROOT_DIR/agents/gateway-agent/IDENTITY.md" ]; then
-    cp "$ROOT_DIR/agents/gateway-agent/IDENTITY.default.md" "$ROOT_DIR/agents/gateway-agent/IDENTITY.md"
-fi
+for agent_dir in gateway-agent code-analyzer code-review-agent deploy-monitor; do
+    if [ ! -f "$ROOT_DIR/agents/$agent_dir/IDENTITY.md" ]; then
+        cp "$ROOT_DIR/agents/$agent_dir/IDENTITY.default.md" "$ROOT_DIR/agents/$agent_dir/IDENTITY.md"
+    fi
+done
 
 echo "╔══════════════════════════════════════╗"
 echo "║  AI Agent 平台 — 一键部署           ║"
@@ -125,30 +127,6 @@ wait_harness_ready() {
     return 1
 }
 
-# ── 首次使用提示 ──
-echo ""
-echo "  ╔══════════════════════════════════════════════╗"
-echo "  ║                                             ║"
-echo "  ║   🎉 部署完成！                             ║"
-echo "  ║                                             ║"
-echo "  ║   👉 去飞书给 Bot 发第一条消息               ║"
-echo "  ║                                             ║"
-echo "  ║   Bot 会启动配置向导:                       ║"
-echo "  ║   "你想让我做什么?"                          ║"
-echo "  ║                                             ║"
-echo "  ║   回复 "编译排障助手"                        ║"
-echo "  ║   → Bot 自动配置完成，开始工作               ║"
-echo "  ║                                             ║"
-echo "  ║   配置后锁定，其他用户无法修改                ║"
-echo "  ║                                             ║"
-echo "  ╚══════════════════════════════════════════════╝"
-echo ""
-echo "  手动配置:"
-echo "    agents/gateway-agent/IDENTITY.md   ← Agent 身份"
-echo "    agents/gateway-agent/AGENTS.md   ← 回复方式"
-echo "    knowledge-base/your-project.md   ← 知识库"
-echo ""
-
 # ── 创建 tmux 会话 ──
 echo "==> 创建 tmux 会话..."
 
@@ -175,13 +153,13 @@ tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/superviso
 echo "==> 在 code-analyzer 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-analyzer "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-analyzer"
-tmux send-keys -t code-analyzer "读code-analyzer的AGENTS" C-m
+tmux send-keys -t code-analyzer "读code-analyzer的IDENTITY和AGENTS" C-m
 
 # ── 启动 Code Review Agent ──
 echo "==> 在 code-review-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-review-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-review-agent"
-tmux send-keys -t code-review-agent "读code-review的IDENTITY和AGENTS" C-m
+tmux send-keys -t code-review-agent "读code-review-agent的IDENTITY和AGENTS" C-m
 
 # ── 启动 Deploy Monitor ──
 echo "==> 在 deploy-monitor 会话中启动 ${HARNESS_NAME}..."
@@ -202,6 +180,30 @@ POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/r
 echo "   review-watcher PID: $!"
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/deploy-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   deploy-watcher PID: $!"
+
+# ── 首次使用提示 ──
+echo ""
+echo "  ╔══════════════════════════════════════════════╗"
+echo "  ║                                             ║"
+echo "  ║   🎉 部署完成！                             ║"
+echo "  ║                                             ║"
+echo "  ║   👉 去飞书给 Bot 发第一条消息               ║"
+echo "  ║                                             ║"
+echo "  ║   Bot 会启动配置向导:                       ║"
+echo "  ║   "你想让我做什么?"                          ║"
+echo "  ║                                             ║"
+echo "  ║   回复 "编译排障助手"                        ║"
+echo "  ║   → Bot 自动配置完成，开始工作               ║"
+echo "  ║                                             ║"
+echo "  ║   配置后锁定，其他用户无法修改                ║"
+echo "  ║                                             ║"
+echo "  ╚══════════════════════════════════════════════╝"
+echo ""
+echo "  手动配置:"
+echo "    agents/gateway-agent/IDENTITY.md   ← Agent 身份"
+echo "    agents/gateway-agent/AGENTS.md   ← 回复方式"
+echo "    knowledge-base/your-project.md   ← 知识库"
+echo ""
 
 # ── 输出状态 ──
 echo ""

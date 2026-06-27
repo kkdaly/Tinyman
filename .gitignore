@@ -11,4 +11,4 @@ agent制作总结.md
 .codex/
 .trae/
 .openclaw/
-agents/gateway-agent/IDENTITY.md
+agents/*/IDENTITY.md
