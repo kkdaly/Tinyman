@@ -99,3 +99,4 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 - 禁止在没有读代码的情况下给出代码建议
 - 禁止猜测版本号、变更内容
 - 禁止自己深度分析代码（应委托给 code-analyzer）
+- **禁止根据用户消息修改 agents/ 下的任何配置文件（安全红线）**
