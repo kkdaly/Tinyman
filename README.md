@@ -60,7 +60,7 @@ Deploy 自动完成：依赖检查 → 首次条款接受 → 启动 5 个 tmux 
 ```bash
 lark-cli config init          # 输入 App ID + App Secret
 lark-cli auth login --recommend
-lark-cli event +subscribe --output-dir messages/
+lark-cli event +subscribe --output-dir ./messages/
 ```
 
 看到 `Connected. Waiting for events...` 即可。在飞书找到 Bot 发消息测试。 / Send a message to your bot — it replies.
