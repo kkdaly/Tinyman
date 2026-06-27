@@ -53,11 +53,10 @@ npm install -g @anthropic-ai/claude-code   # 或 codex/trae
 ```bash
 git clone https://github.com/kkdaly/Tinyman.git
 cd Tinyman
-cp .env.example .env
 ./scripts/deploy.sh
 ```
 
-Deploy 自动完成：依赖检查 → 首次条款接受 → 启动 5 个 tmux 会话 → 启动 4 个后台 watcher。看到"部署完成"即成功。 / One command deploys everything: dependency check → terms acceptance → 5 tmux sessions → 4 background watchers.
+部署完成后去飞书给 Bot 发第一条消息，Bot 会自动问你"想让我做什么"，一句回答完成配置。 / After deploy, send the first message to your bot — it automatically asks what type of agent you need. One reply completes setup.
 
 ### 3. 绑定飞书 Bot / Bind Lark Bot
 
@@ -65,32 +64,23 @@ Deploy 自动完成：依赖检查 → 首次条款接受 → 启动 5 个 tmux 
 
 1. 打开 [飞书开放平台](https://open.feishu.cn) → 创建企业自建应用
 2. **添加能力** → 开启"机器人" / Enable "Bot"
-3. **权限管理** → 添加：
-   - `im:message` — 读取消息
-   - `im:message:send_as_bot` — 发送消息
-   - `im:message.group_at_msg` — 接收群聊 @ 消息
-4. **安全设置** → 在"添加事件"中订阅 `接收消息` / `im.message.receive_v1`
+3. **权限管理** → 添加 `im:message`、`im:message:send_as_bot`、`im:message.group_at_msg`
+4. **事件订阅** → 订阅 `接收消息` / `im.message.receive_v1`
 5. **发布上线** → 创建版本并发布（需管理员审批）
 
-**配置并启动订阅：**
+**启动订阅：**
 
 ```bash
-lark-cli config init          # 输入 App ID + App Secret
+lark-cli config init
 lark-cli auth login --recommend
 lark-cli event +subscribe --output-dir ./messages/
 ```
 
-看到 `Connected. Waiting for events...` 即可。在飞书找到 Bot 发消息测试。 / Send a message to your bot — it replies.
-
 ### 其他 IM / Other IM
 
-任何能把消息写入 `messages/` 目录的机制都能用。最简单的方式——启动一个 HTTP server 接收 webhook：
+任何能把消息写入 `messages/` 的机制都能用：webhook、MQ consumer、定时任务、IM SDK。回复命令在 `agents/gateway-agent/AGENTS.md` 中改。
 
-```bash
-ncat -l -p 8080 -c 'cat > messages/$(date +%s).json'
-```
-
-回复命令改 `agents/gateway-agent/AGENTS.md` 中的 Lark API 为对应平台的发送方式。 / Switch the reply command in `agents/gateway-agent/AGENTS.md` for your platform.
+Any mechanism that writes to `messages/` works. Switch the reply command in `agents/gateway-agent/AGENTS.md` for your platform.
 
 ## 切换 Harness / Switch Harness
 
@@ -137,14 +127,7 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 | 客服机器人 | 多渠道 → `messages/` | FAQ 匹配，复杂问题升级人工 |
 | 每日报告 | Cron 任务写 `messages/` | 读 git log/指标，生成日报发群 |
 
-**消息流可以走任何路径：**
-```
-Webhook → HTTP server → messages/      最简单，ncat 一行搞定
-Cron job → 定时写 messages/            定期报告、检查
-IM SDK  → messages/                    Lark / Slack / 企业微信
-MQ      → Consumer → messages/        生产级，多用户 sharding
-数据库   → Worker → messages/          审计、工单系统对接
-```
+消息流：Webhook / IM SDK / Cron / MQ / 数据库 → `messages/` → Agent 处理
 
 ## 单用户 vs 多用户 / Single vs Multi-User
 
@@ -185,17 +168,21 @@ MQ      → Consumer → messages/        生产级，多用户 sharding
 
 ```
 .
-├── README.md                     ← 本文件 / This file
+├── README.md
 ├── CONVENTIONS.md                ← Agent 底座 prompt
-├── AGENTS.md                     ← AI 指令 / AI instructions
-├── .env.example                  ← 配置模板 / Config template
-├── agents/                       ← Agent 身份和指令 / Identities & instructions
-├── knowledge-base/               ← 项目知识库 / Your docs
-├── scripts/                      ← 部署、watcher、监工 / Deploy, watchers, supervisor
-├── tasks/                        ← Agent 间任务传递 / Inter-agent task files
-├── repos/                        ← 代码仓库 symlink / Code symlinks
-├── messages/                     ← IM 消息落地 / Message landing
-└── worklogs/                     ← 问答记录 / Q&A records
+├── AGENTS.md                     ← AI 指令
+├── .env.example                  ← 配置模板
+├── agents/                       ← Agent 身份(IDENTITY.md) + 操作(AGENTS.md)
+├── knowledge-base/               ← 项目知识库
+├── scripts/
+│   ├── deploy.sh                 ← 一键部署
+│   ├── harness-presets.sh        ← Harness 预设
+│   ├── *-watcher.sh              ← 消息 + 任务唤醒
+│   └── supervisor.sh             ← 健康监控
+├── repos/                        ← 代码仓库 symlink
+├── messages/                     ← IM 消息落地
+├── tasks/                        ← Agent 间任务传递
+└── worklogs/                     ← 问答记录
 ```
 
 ## 亮点 / Highlights
