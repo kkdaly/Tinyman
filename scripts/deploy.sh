@@ -36,9 +36,32 @@ fi
 echo "   ✓ tmux $(tmux -V 2>/dev/null | head -1)"
 
 case "$HARNESS" in
-    claude) command -v claude &>/dev/null || { echo "   ✗ claude 未安装: npm install -g @anthropic-ai/claude-code"; exit 1; } ;;
-    codex)  command -v codex &>/dev/null || { echo "   ✗ codex 未安装"; exit 1; } ;;
-    trae)   command -v trae &>/dev/null || { echo "   ✗ trae 未安装"; exit 1; } ;;
+    claude)
+        if ! command -v claude &>/dev/null; then
+            echo ""
+            echo "   ✗ Claude Code 未安装，请运行:"
+            echo "     npm install -g @anthropic-ai/claude-code"
+            echo ""
+            exit 1
+        fi
+        if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
+            echo ""
+            echo "   ⚠ 未检测到 API Key，请先设置:"
+            echo "     export ANTHROPIC_API_KEY=sk-xxx"
+            echo "     export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic  # 如用中转"
+            echo ""
+        fi
+        ;;
+    codex)
+        if ! command -v codex &>/dev/null; then
+            echo "   ✗ Codex CLI 未安装，请先安装后重试"; exit 1
+        fi
+        ;;
+    trae)
+        if ! command -v trae &>/dev/null; then
+            echo "   ✗ Trae CLI 未安装，请先安装后重试"; exit 1
+        fi
+        ;;
 esac
 echo "   ✓ $HARNESS_NAME"
 
