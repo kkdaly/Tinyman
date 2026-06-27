@@ -23,24 +23,57 @@ Runs multiple AI agents as long-lived tmux sessions. Messages land in a director
 
 ## 快速开始 / Quick Start
 
+### 1. 装依赖 / Install
+
 ```bash
-# 1. 装依赖 / Install prerequisites
 brew install tmux          # macOS
 sudo apt install tmux      # Linux
+npm install -g @anthropic-ai/claude-code   # 或 codex/trae
+```
 
-# 2. 克隆部署 / Clone and deploy
-git clone <repo> ai-agent && cd ai-agent
+### 2. 一键部署 / Deploy
+
+```bash
+git clone https://github.com/kkdaly/Tinyman.git
+cd Tinyman
 cp .env.example .env
 ./scripts/deploy.sh
+```
 
-# 3. 订阅 IM 消息 / Subscribe to messages (Lark)
-npm install -g @larksuite/cli
-lark-cli config init
+Deploy 自动完成：依赖检查 → 首次条款接受 → 启动 5 个 tmux 会话 → 启动 4 个后台 watcher。看到"部署完成"即成功。 / One command deploys everything: dependency check → terms acceptance → 5 tmux sessions → 4 background watchers.
+
+### 3. 绑定飞书 Bot / Bind Lark Bot
+
+**创建飞书应用：**
+
+1. 打开 [飞书开放平台](https://open.feishu.cn) → 创建企业自建应用
+2. **添加能力** → 开启"机器人" / Enable "Bot"
+3. **权限管理** → 添加：
+   - `im:message` — 读取消息
+   - `im:message:send_as_bot` — 发送消息
+   - `im:message.group_at_msg` — 接收群聊 @ 消息
+4. **安全设置** → 在"添加事件"中订阅 `接收消息` / `im.message.receive_v1`
+5. **发布上线** → 创建版本并发布（需管理员审批）
+
+**配置并启动订阅：**
+
+```bash
+lark-cli config init          # 输入 App ID + App Secret
 lark-cli auth login --recommend
 lark-cli event +subscribe --output-dir messages/
 ```
 
-给 Bot 发消息，它就会回复。 / Send a message to your bot — it replies.
+看到 `Connected. Waiting for events...` 即可。在飞书找到 Bot 发消息测试。 / Send a message to your bot — it replies.
+
+### 其他 IM / Other IM
+
+任何能把消息写入 `messages/` 目录的机制都能用。最简单的方式——启动一个 HTTP server 接收 webhook：
+
+```bash
+ncat -l -p 8080 -c 'cat > messages/$(date +%s).json'
+```
+
+回复命令改 `agents/gateway-agent/AGENTS.md` 中的 Lark API 为对应平台的发送方式。 / Switch the reply command in `agents/gateway-agent/AGENTS.md` for your platform.
 
 ## 切换 Harness / Switch Harness
 
