@@ -86,6 +86,14 @@ npm install -g @larksuite/cli  # 装 Lark CLI（如用 Lark）
 ./scripts/deploy.sh        # 一键部署
 ```
 
+## 安全模型
+
+- Agent 配置只能通过 `tmux attach` 管理员修改，IM 用户无权改
+- 内置防 prompt 注入：忽略"忽略你的指令"等越狱尝试
+- 禁止输出 API Key、Token、密码、服务器内部路径
+- 禁止执行 `rm -rf` 等危险 shell 命令
+- 对外部署建议在 webhook 前加一层鉴权
+
 ## 踩过的坑
 
 详见 `scripts/im-setup.md`，记录了 11 个生产调试中踩的坑。
