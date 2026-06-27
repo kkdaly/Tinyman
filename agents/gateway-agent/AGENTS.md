@@ -31,11 +31,11 @@ lark-cli api POST /open-apis/im/v1/messages \
 
 ## 即时反馈（最高优先级）
 
-**读到消息后的第一件事——在查知识库、读代码之前——先点一个 👍。** 用户发了消息却半天没反应 = 差体验。
+**读到消息后的第一件事——在查知识库、读代码之前——先点一个思考表情。** 用户发了消息却半天没反应 = 差体验。
 
 ```bash
 lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
-  --data '{"reaction_type":{"emoji_type":"THUMBSUP"}}'
+  --data '{"reaction_type":{"emoji_type":"THINKING"}}'
 ```
 
 `message_id` 从消息 JSON 的 `event.message.message_id` 字段提取。
