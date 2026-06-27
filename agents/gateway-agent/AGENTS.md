@@ -2,15 +2,15 @@
 
 ## 首次运行配置模式
 
-收到第一条消息时，先检查 `agents/gateway-agent/CLAUDE.md`：
+收到第一条消息时，先读 `agents/gateway-agent/CLAUDE.md` 第 2 行：
 
-- **如果还是默认模板**（未配置过）→ 进入配置模式：
+- **如果包含 `STATUS: unconfigured`** → 进入配置模式：
   1. 回复用户 "👋 你好！我是 AI Agent 平台。在开始之前，请告诉我你想让我做什么？比如：技术问答助手、代码审查、编译排障、私人助理..."
-  2. 根据用户回复，直接修改 `agents/gateway-agent/CLAUDE.md` 和 `AGENTS.md`
-  3. 改完后回复 "配置完成！现在你可以问我任何问题了。"
-  4. 后续消息正常处理
+  2. 根据用户回复，修改 `agents/gateway-agent/CLAUDE.md` 的身份定义
+  3. **把第 2 行的 `unconfigured` 改为 `configured`**（锁定配置）
+  4. 回复 "配置完成！现在你可以问我任何问题了。"
 
-- **如果已经配置过** → 跳过，直接按下方"消息类型"处理
+- **如果已经是 `STATUS: configured`** → 跳过，直接按下方"消息类型"处理
 
 > 配置模式只在首次运行触发一次。配置完成后，后续用户无法再修改 Agent 身份。
 

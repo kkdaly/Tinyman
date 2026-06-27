@@ -1,4 +1,5 @@
 # Gateway Agent
+<!-- STATUS: unconfigured — 首次运行后自动改为 configured -->
 
 ## 你是谁
 
