@@ -4,9 +4,9 @@
 >
 > Build it in a day. Tune it for a week. It runs for months.
 >
-> 一套通用 AI Agent 基础设施。不依赖 RAG、不依赖编排框架、不依赖向量数据库。生产验证过——真实 Oncall 场景每天处理几十条技术问题，人工介入率不到 5%。
+> 一套通用 AI Agent 基础设施。不依赖 RAG、不依赖编排框架、不依赖向量数据库。生产验证过——已在实际业务中稳定运行数月，每天处理大量技术问题，人工介入率极低。
 >
-> A production-proven, general-purpose AI agent infrastructure. **No RAG. No orchestration frameworks. No vector databases.** Just tmux + bash + prompts. Battle-tested in real oncall scenarios with <5% human escalation rate.
+> A production-proven, general-purpose AI agent infrastructure. **No RAG. No orchestration frameworks. No vector databases.** Just tmux + bash + prompts. Battle-tested in production for months with minimal human escalation.
 
 ## 为什么选这个 / Why This
 
@@ -14,12 +14,12 @@
 |----------------|-------------|
 | LangChain / Dify / Coze | 太重，要 Python、要 Docker、要配置平台 |
 | 自建 RAG 方案 | 数据维护成本高，检索噪声大，幻觉来源多 |
-| 买商业 Oncall 平台 | 贵、不灵活、和你的代码仓库脱节 |
+| 买商业 SaaS 平台 | 贵、不灵活、和你的代码仓库脱节 |
 | 自己从零写 | 这个项目已经踩完了所有坑 |
 
 **核心哲学：prompt 是最好的代码。** 改场景不改代码，改身份不改变架构。一份知识库 + 一套 prompt = 一个新 Agent。
 
-**Core philosophy: prompts > code.** Switch from oncall to code review to personal assistant without touching a line of shell. One knowledge base + one set of prompts = one new agent.
+**Core philosophy: prompts > code.** Switch from Q&A to code review to personal assistant without touching a line of shell. One knowledge base + one set of prompts = one new agent.
 
 ## 这是什么 / What It Does
 
@@ -155,13 +155,13 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 - **多 Agent 真协同。** 不是 demo 级——5 个 Agent 各自独立 session，文件级 IPC，互不干扰，可随时 attach 进去看它在想什么。
 - **安全内置。** 三层防线：防 prompt 注入、禁止危险命令、禁止泄露敏感信息。配置只能管理员 tmux 直连改。
 - **上下文持久。** tmux 长驻，不需要每轮请求重建上下文。lambda/webhook 模式的天生劣势，这里不存在。
-- **生产验证。** 真实 Oncall 场景跑了几个月，ROI "团队成立以来最高"。
+- **生产验证。** 真实业务场景稳定运行数月，ROI "团队成立以来最高"。
 
 > Daily deployment. No lock-in. Real multi-agent IPC. Built-in security. Persistent context. Production-proven.
 
 ## 谁适合用 / Who Is This For
 
-- 想用 AI 接管 Oncall、但不想买商业平台的团队
+- 想用 AI 接管技术问答、但不想买商业平台的团队
 - 想做代码审查 / 发布巡检 / 编译排障自动化的人
 - 需要一个不依赖任何框架、完全可控的 AI Agent 底座的开发者
 - 被 LangChain/Dify/Coze 的复杂度劝退、想回归极简的人
