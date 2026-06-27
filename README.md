@@ -123,6 +123,56 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 | Deploy Monitor | `deploy-monitor` | deploy-watcher | 发布巡检 / Release inspection |
 | Supervisor | `supervisor` | 定时循环 | 健康监控 / Health monitoring |
 
+## 可扩展场景 / Extensible Scenarios
+
+改 prompt 就能切换，不写代码：
+
+| 场景 | 消息来源 | 做什么 |
+|------|---------|--------|
+| 技术问答 | IM 群聊 / 私聊 | 查知识库+代码，自动回复用户问题 |
+| 代码审查 | Git webhook → `messages/` | 读 diff，输出 blocker/suggestion |
+| 发布巡检 | CI/CD webhook → `messages/` | 检查构建日志，判断是否安全上线 |
+| 编译排障 | 用户贴构建日志 | 匹配错误模式，给出修复建议 |
+| 私人助理 | 个人 IM | 记住偏好，定时查询，执行重复任务 |
+| 客服机器人 | 多渠道 → `messages/` | FAQ 匹配，复杂问题升级人工 |
+| 每日报告 | Cron 任务写 `messages/` | 读 git log/指标，生成日报发群 |
+
+**消息流可以走任何路径：**
+```
+Webhook → HTTP server → messages/      最简单，ncat 一行搞定
+Cron job → 定时写 messages/            定期报告、检查
+IM SDK  → messages/                    Lark / Slack / 企业微信
+MQ      → Consumer → messages/        生产级，多用户 sharding
+数据库   → Worker → messages/          审计、工单系统对接
+```
+
+## 单用户 vs 多用户 / Single vs Multi-User
+
+**单用户（当前默认）：** 一个 gateway-agent session 处理所有消息。上下文会自然关联同一用户的连续对话。适合团队内部使用（几十人）。
+
+**多用户 / 对外：**
+```
+         Webhook
+            │
+      ┌─────┴─────┐
+      ▼           ▼
+   MQ / Queue   用户分片
+      │           │
+      ▼           ▼
+  gateway-1   gateway-2   ...    ← 每个用户/群独立的 tmux session
+      │           │
+      └─────┬─────┘
+            ▼
+      共享 specialist       ← code-analyzer 等可复用
+```
+
+多用户部署额外需要：
+- 按 `open_id` 或 `chat_id` 路由消息到独立 session，避免上下文混杂
+- 不同 session 用不同的 worklog 目录
+- 共享 specialist agent（code-analyzer 等）可复用，省钱
+
+详见 `scripts/HARNESS.md` 中的扩展方案。
+
 ## 定制 / Customize
 
 1. **换场景 / Change scenario** — 编辑 `agents/gateway-agent/CLAUDE.md`（身份）和 `AGENTS.md`（操作）
