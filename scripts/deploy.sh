@@ -71,7 +71,7 @@ wait_harness_ready() {
         pane=$(tmux capture-pane -t "$session" -p -S -10 2>/dev/null)
         # 首次运行条款弹窗 → 自动接受
         if echo "$pane" | grep -q "I accept"; then
-            tmux send-keys -t "$session" j C-m
+            tmux send-keys -t "$session" Down Enter
             sleep 2
         fi
         if echo "$pane" | grep -qE '(❯|▸)'; then
