@@ -165,7 +165,7 @@ tmux send-keys -t gateway-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "gateway-agent"
 tmux send-keys -t gateway-agent "读gateway的CLAUDE和AGENTS" C-m
 sleep 5
-tmux send-keys -t gateway-agent "帮用户配置平台，问他搭建什么类型" C-m
+tmux send-keys -t gateway-agent "你是配置向导。问用户想搭建什么类型(Oncall/代码审查/私人助理/编译排障等)，根据回答直接修改 agents/gateway-agent/CLAUDE.md 和 AGENTS.md 的内容，完成后告知用户已配置好。" C-m
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
