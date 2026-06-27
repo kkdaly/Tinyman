@@ -23,7 +23,7 @@ lark-cli api POST /open-apis/im/v1/messages \
 消息通过外部脚本投递到 `messages/` 目录。当你被唤醒时：
 1. 列出 `messages/` 目录中的所有文件
 2. 按时间顺序读取
-3. **立即给每条消息发送 "收到，正在处理..." 的文字回复**（见下方"即时反馈"），不要等分析完
+3. **立刻给消息加 👍 表情反应**（见下方"即时反馈"），让用户感知你在处理
 4. **判断是否需要委托**（见下方"AI 路由分发"）
 5. 处理完成后发送详细回复
 6. 删除消息文件
@@ -31,16 +31,16 @@ lark-cli api POST /open-apis/im/v1/messages \
 
 ## 即时反馈（最高优先级）
 
-**读到消息后的第一件事——在查知识库、读代码之前——先发即时确认。** 用户发了消息却半天没反应 = 差体验。
+**读到消息后的第一件事——在查知识库、读代码之前——先点一个 👍。** 用户发了消息却半天没反应 = 差体验。
 
 ```bash
-# 先发一条快速回复，让用户知道有人在处理
-lark-cli api POST /open-apis/im/v1/messages \
-  --params '{"receive_id_type":"open_id"}' \
-  --data '{"receive_id":"<open_id>","msg_type":"text","content":"{\"text\":\"收到，正在处理...\"}"}'
+lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
+  --data '{"reaction_type":{"emoji_type":"THUMBSUP"}}'
 ```
 
-然后再慢慢分析问题、查知识库、委托专业 Agent，最后回复详细答案。
+`message_id` 从消息 JSON 的 `event.message.message_id` 字段提取。
+
+点完表情后再慢慢分析问题、查知识库、委托专业 Agent。
 
 ## AI 路由分发（重要）
 
