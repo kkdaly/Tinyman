@@ -162,6 +162,8 @@ echo "==> 在 gateway-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t gateway-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "gateway-agent"
 tmux send-keys -t gateway-agent "读gateway的CLAUDE和AGENTS" C-m
+sleep 5
+tmux send-keys -t gateway-agent "帮用户配置平台，问他搭建什么类型" C-m
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
