@@ -100,55 +100,13 @@ if [ "$HARNESS" = "claude" ]; then
     fi
 fi
 
-# ── 1. 首次使用提示 ──
-echo ""
-echo "  ╔══════════════════════════════════════════════╗"
-echo "  ║                                             ║"
-echo "  ║   🎉 部署完成！                              ║"
-echo "  ║                                             ║"
-echo "  ║   不改: 默认是一个通用 AI 问答助手，也能用    ║"
-echo "  ║   改了: 变成 Oncall 值班 / 代码审查 / 你自己 ║"
-echo "  ║                                             ║"
-echo "  ║   改这 3 个文件就够了:                        ║"
-echo "  ║                                             ║"
-echo "  ║   agents/gateway-agent/CLAUDE.md             ║"
-echo "  ║   → Agent 是谁？做什么的？                    ║"
-echo "  ║                                             ║"
-echo "  ║   agents/gateway-agent/AGENTS.md             ║"
-echo "  ║   → 怎么回复？怎么委托任务？                  ║"
-echo "  ║                                             ║"
-echo "  ║   knowledge-base/your-project.md             ║"
-echo "  ║   → Agent 需要知道的背景知识                  ║"
-echo "  ║                                             ║"
-echo "  ╚══════════════════════════════════════════════╝"
-echo ""
-echo "  或者 attach 到 gateway-agent，AI 会帮你配置:"
-echo "    tmux attach -t gateway-agent"
-echo ""
-echo "  重新配置需要管理员 attach 到 tmux 手动操作，"
-echo "  普通用户通过 IM 不能修改 Agent 配置（安全考虑）。"
-echo ""
-
-# ── 4. 创建 tmux 会话 ──
-echo "==> 创建 tmux 会话..."
-
-for session in gateway-agent supervisor code-analyzer code-review-agent deploy-monitor; do
-    if tmux has-session -t "$session" 2>/dev/null; then
-        echo "  会话 $session 已存在，跳过"
-    else
-        tmux new-session -d -s "$session" -c "$ROOT_DIR"
-        echo "  会话 $session 已创建"
-    fi
-done
-
-# ── 辅助函数: 等待 Harness 就绪，自动处理条款弹窗 ──
+# ── 辅助函数: 等待 Harness 就绪 ──
 wait_harness_ready() {
     local session="$1"
     for i in $(seq 1 30); do
         sleep 1
         local pane
         pane=$(tmux capture-pane -t "$session" -p -S -10 2>/dev/null)
-        # 首次运行条款弹窗 → 自动接受
         if echo "$pane" | grep -q "I accept"; then
             tmux send-keys -t "$session" Down C-m
             sleep 2
@@ -162,41 +120,77 @@ wait_harness_ready() {
     return 1
 }
 
-# ── 5. 启动 Gateway Agent ──
+# ── 首次使用提示 ──
+echo ""
+echo "  ╔══════════════════════════════════════════════╗"
+echo "  ║                                             ║"
+echo "  ║   🎉 部署完成！                             ║"
+echo "  ║                                             ║"
+echo "  ║   👉 去飞书给 Bot 发第一条消息               ║"
+echo "  ║                                             ║"
+echo "  ║   Bot 会启动配置向导:                       ║"
+echo "  ║   "你想让我做什么?"                          ║"
+echo "  ║                                             ║"
+echo "  ║   回复 "编译排障助手"                        ║"
+echo "  ║   → Bot 自动配置完成，开始工作               ║"
+echo "  ║                                             ║"
+echo "  ║   配置后锁定，其他用户无法修改                ║"
+echo "  ║                                             ║"
+echo "  ╚══════════════════════════════════════════════╝"
+echo ""
+echo "  手动配置:"
+echo "    agents/gateway-agent/CLAUDE.md   ← Agent 身份"
+echo "    agents/gateway-agent/AGENTS.md   ← 回复方式"
+echo "    knowledge-base/your-project.md   ← 知识库"
+echo ""
+
+# ── 创建 tmux 会话 ──
+echo "==> 创建 tmux 会话..."
+
+for session in gateway-agent supervisor code-analyzer code-review-agent deploy-monitor; do
+    if tmux has-session -t "$session" 2>/dev/null; then
+        echo "  会话 $session 已存在，跳过"
+    else
+        tmux new-session -d -s "$session" -c "$ROOT_DIR"
+        echo "  会话 $session 已创建"
+    fi
+done
+
+# ── 启动 Gateway Agent ──
 echo "==> 在 gateway-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t gateway-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "gateway-agent"
 tmux send-keys -t gateway-agent "读gateway的CLAUDE和AGENTS" C-m
 
-# ── 6. 启动监工 ──
+# ── 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
 tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" C-m
 
-# ── 7. 启动代码分析 Agent ──
+# ── 启动代码分析 Agent ──
 echo "==> 在 code-analyzer 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-analyzer "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-analyzer"
 tmux send-keys -t code-analyzer "读code-analyzer的AGENTS" C-m
 
-# ── 8. 启动 Code Review Agent ──
+# ── 启动 Code Review Agent ──
 echo "==> 在 code-review-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-review-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-review-agent"
 tmux send-keys -t code-review-agent "读code-review的CLAUDE和AGENTS" C-m
 
-# ── 9. 启动 Deploy Monitor ──
+# ── 启动 Deploy Monitor ──
 echo "==> 在 deploy-monitor 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t deploy-monitor "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "deploy-monitor"
 tmux send-keys -t deploy-monitor "读deploy-monitor的CLAUDE和AGENTS" C-m
 
-# ── 10. 启动消息流水线 ──
+# ── 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   msg-watcher PID: $!"
 
-# ── 11. 启动任务流水线（后台，${POLL_INTERVAL}s 轮询）──
-echo "==> 启动任务流水线（后台）..."
+# ── 启动任务流水线 ──
+echo "==> 启动任务流水线（后台，${POLL_INTERVAL}s 轮询）..."
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/code-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   code-watcher PID: $!"
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/review-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
@@ -204,7 +198,7 @@ echo "   review-watcher PID: $!"
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/deploy-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   deploy-watcher PID: $!"
 
-# ── 12. 输出状态 ──
+# ── 输出状态 ──
 echo ""
 echo "═══════════════════════════════════════════"
 echo "  部署完成"
