@@ -78,7 +78,7 @@ if [ "$HARNESS" = "claude" ]; then
         pane=$(tmux capture-pane -t "$BOOTSTRAP_SESSION" -p -S -10 2>/dev/null)
         if echo "$pane" | grep -q "I accept"; then
             echo "   ⚡ 自动接受条款..."
-            tmux send-keys -t "$BOOTSTRAP_SESSION" Down Enter
+            tmux send-keys -t "$BOOTSTRAP_SESSION" Down C-m
             sleep 3
             ACCEPTED=true
             break
@@ -129,7 +129,7 @@ wait_harness_ready() {
         pane=$(tmux capture-pane -t "$session" -p -S -10 2>/dev/null)
         # 首次运行条款弹窗 → 自动接受
         if echo "$pane" | grep -q "I accept"; then
-            tmux send-keys -t "$session" Down Enter
+            tmux send-keys -t "$session" Down C-m
             sleep 2
         fi
         if echo "$pane" | grep -qE '(❯|▸)'; then
@@ -145,7 +145,7 @@ wait_harness_ready() {
 echo "==> 在 gateway-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t gateway-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "gateway-agent"
-tmux send-keys -t gateway-agent "读 agents/gateway-agent/CLAUDE.md 和 agents/gateway-agent/AGENTS.md，你是 Gateway Agent，负责接收并分发用户消息" Enter
+tmux send-keys -t gateway-agent "读 agents/gateway-agent/CLAUDE.md 和 agents/gateway-agent/AGENTS.md，你是 Gateway Agent，负责接收并分发用户消息" C-m
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
@@ -155,19 +155,19 @@ tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/superviso
 echo "==> 在 code-analyzer 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-analyzer "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-analyzer"
-tmux send-keys -t code-analyzer "读 agents/code-analyzer/AGENTS.md，你是代码分析 Agent，等待 code-watcher 唤醒" Enter
+tmux send-keys -t code-analyzer "读 agents/code-analyzer/AGENTS.md，你是代码分析 Agent，等待 code-watcher 唤醒" C-m
 
 # ── 8. 启动 Code Review Agent ──
 echo "==> 在 code-review-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-review-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-review-agent"
-tmux send-keys -t code-review-agent "读 agents/code-review-agent/CLAUDE.md 和 agents/code-review-agent/AGENTS.md，你是 Code Review Agent，等待 review-watcher 唤醒" Enter
+tmux send-keys -t code-review-agent "读 agents/code-review-agent/CLAUDE.md 和 agents/code-review-agent/AGENTS.md，你是 Code Review Agent，等待 review-watcher 唤醒" C-m
 
 # ── 9. 启动 Deploy Monitor ──
 echo "==> 在 deploy-monitor 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t deploy-monitor "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "deploy-monitor"
-tmux send-keys -t deploy-monitor "读 agents/deploy-monitor/CLAUDE.md 和 agents/deploy-monitor/AGENTS.md，你是发布巡检 Agent，等待 deploy-watcher 唤醒" Enter
+tmux send-keys -t deploy-monitor "读 agents/deploy-monitor/CLAUDE.md 和 agents/deploy-monitor/AGENTS.md，你是发布巡检 Agent，等待 deploy-watcher 唤醒" C-m
 
 # ── 10. 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."
