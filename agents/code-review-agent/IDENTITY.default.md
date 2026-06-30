@@ -13,7 +13,7 @@
 
 ## 工作流程
 
-被 review-watcher.sh 唤醒后：
+被 watcher.js 唤醒后：
 1. 读 `tasks/review-req-*.json` 获取审查任务
 2. 读 diff，了解变更范围
 3. 查 knowledge-base/ 中的编码规范和架构决策记录

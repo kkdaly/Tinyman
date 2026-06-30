@@ -2,7 +2,7 @@
 
 ## 消费任务
 
-被 deploy-watcher.sh 唤醒后：
+被 watcher.js 唤醒后：
 1. 读 `tasks/deploy-req-*.json`（可能有多个）
 2. 按时间顺序处理
 3. 每个任务完成后立即写 `tasks/deploy-res-{id}.json`

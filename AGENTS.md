@@ -16,7 +16,7 @@ cp .env.example .env
 ln -s /path/to/your/repo repos/your-project
 
 # 4. 部署
-./scripts/deploy.sh
+node scripts/deploy.js
 
 # 5. 配置 IM（Lark 示例）
 lark-cli config init
@@ -29,7 +29,7 @@ lark-cli event +subscribe --output-dir messages/
 ## 架构
 
 ```
-IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent 处理回复
+IM 消息 → messages/ → watcher (轮询) → tmux send-keys → Agent 处理回复
                                                   ↑
                                             监工 supervisor (60s 巡检)
 ```
@@ -49,13 +49,10 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 │   └── supervisor-agent/          ← 监工 Agent
 ├── knowledge-base/              ← 知识库（你填内容）
 ├── scripts/
-│   ├── deploy.sh                ← 一键部署
-│   ├── harness-presets.sh       ← Harness 预设（Claude/Codex/Trae）
-│   ├── msg-watcher.sh           ← 消息流水线（唤醒 gateway-agent）
-│   ├── code-watcher.sh          ← 代码分析唤醒
-│   ├── review-watcher.sh        ← PR 审查唤醒
-│   ├── deploy-watcher.sh        ← 发布巡检唤醒
-│   ├── supervisor.sh            ← 监工脚本
+│   ├── deploy.js                ← 一键部署
+│   ├── harness-presets.js       ← Harness 预设（Claude/Codex/Trae）
+│   ├── watcher.js               ← 通用 watcher（消息 + 任务唤醒）
+│   ├── supervisor.js            ← 健康监控
 │   └── im-setup.md              ← 部署指南 + 踩坑记录
 ├── tasks/                       ← Agent 间任务传递
 ├── repos/                       ← 代码仓库 symlink
@@ -65,12 +62,12 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 
 ## 如何定制
 
-1. **换 Harness：** `HARNESS=codex ./scripts/deploy.sh` — 支持 claude/codex/trae/openclaw
+1. **换 Harness：** `node scripts/deploy.js --harness codex` — 支持 claude/codex/trae/openclaw
 2. **改身份：** 编辑 `agents/gateway-agent/IDENTITY.md` — 改 Agent 的角色定义
 3. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
 4. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
 5. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
+6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，deploy.js 的 AGENTS 和 WATCHERS 数组各加一项
 
 ## 切换 IM 平台
 
@@ -83,7 +80,7 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 ```bash
 apt install tmux           # 装 tmux
 npm install -g @larksuite/cli  # 装 Lark CLI（如用 Lark）
-./scripts/deploy.sh        # 一键部署
+node scripts/deploy.js        # 一键部署
 ```
 
 ## 安全模型

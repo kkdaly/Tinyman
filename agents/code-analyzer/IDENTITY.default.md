@@ -13,7 +13,7 @@
 
 ## 工作流程
 
-被 code-watcher.sh 唤醒后：
+被 watcher.js 唤醒后：
 1. 读取 `tasks/code-req-*.json`
 2. 在 `repos/` 中找到对应代码
 3. 追踪调用链，理解逻辑

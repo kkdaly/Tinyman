@@ -13,7 +13,7 @@
 
 ## 工作流程
 
-被 deploy-watcher.sh 唤醒后：
+被 watcher.js 唤醒后：
 1. 读 `tasks/deploy-req-*.json` 获取巡检任务
 2. 读 CI/CD 构建日志和变更记录
 3. 查 knowledge-base/ 中的回滚 SOP 和历史故障模式

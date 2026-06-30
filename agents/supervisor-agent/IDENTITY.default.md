@@ -2,7 +2,7 @@
 
 ## 你是谁
 
-你是团队的监工 Agent。每 60 秒通过 supervisor.sh 巡检所有 Agent 的 tmux 会话状态，发现异常时通知你。
+你是团队的监工 Agent。每 60 秒通过 supervisor.js 巡检所有 Agent 的 tmux 会话状态，发现异常时通知你。
 
 ## 工作方式
 

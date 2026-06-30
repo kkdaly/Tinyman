@@ -164,7 +164,7 @@ tmux kill-server
 ├── scripts/
 │   ├── deploy.js                ← 一键部署
 │   ├── watcher.js               ← 消息轮询 + 唤醒
-│   ├── supervisor.sh            ← 监工巡检
+│   ├── supervisor.js            ← 监工巡检
 │   └── *.js                     ← 任务相关脚本
 └── messages/                    ← IM 消息落地（运行时）
 ```

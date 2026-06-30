@@ -28,7 +28,7 @@
 Runs multiple AI agents as long-lived tmux sessions. Messages land in a directory, a watcher wakes the gateway agent, which intelligently routes tasks to specialist agents via file-based IPC.
 
 ```
-消息/Message → messages/ → msg-watcher → gateway-agent (AI 路由/dispatcher)
+消息/Message → messages/ → watcher.js → gateway-agent (AI 路由/dispatcher)
                                               │
                     ┌─────────────────────────┼─────────────────────────┐
                     ▼                         ▼                         ▼
@@ -142,16 +142,16 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 | 事件/Event loop | bash watcher | 轮询 `messages/` 和 `tasks/`，agent 空闲时唤醒 |
 | 路由/Routing | AI 判断 | Gateway 读消息，判断：自己答还是委托 |
 | 通信/IPC | JSON 文件 | `tasks/{type}-req-{id}.json` → `tasks/{type}-res-{id}.json` |
-| 监控/Supervision | supervisor.sh | 60s 巡检：session 存活、未卡死、未循环 |
+| 监控/Supervision | supervisor.js | 60s 巡检：session 存活、未卡死、未循环 |
 
 ## 内置 Agent / Built-in Agents
 
 | Agent | Session | 触发/Trigger | 职责/Role |
 |-------|---------|-------------|-----------|
-| Gateway | `gateway-agent` | msg-watcher | 消息入口，AI 路由 / Message entry, dispatcher |
-| Code Analyzer | `code-analyzer` | code-watcher | 深度代码分析 / Deep code analysis |
-| Code Review | `code-review-agent` | review-watcher | PR 审查 / PR review |
-| Deploy Monitor | `deploy-monitor` | deploy-watcher | 发布巡检 / Release inspection |
+| Gateway | `gateway-agent` | watcher.js | 消息入口，AI 路由 / Message entry, dispatcher |
+| Code Analyzer | `code-analyzer` | watcher.js | 深度代码分析 / Deep code analysis |
+| Code Review | `code-review-agent` | watcher.js | PR 审查 / PR review |
+| Deploy Monitor | `deploy-monitor` | watcher.js | 发布巡检 / Release inspection |
 | Supervisor | `supervisor` | 定时循环 | 健康监控 / Health monitoring |
 
 ## 可扩展场景 / Extensible Scenarios
@@ -219,7 +219,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 │   ├── deploy.js                 ← 一键部署
 │   ├── harness-presets.js        ← Harness 预设
 │   ├── watcher.js                ← 消息 + 任务唤醒
-│   └── supervisor.sh             ← 健康监控
+│   └── supervisor.js             ← 健康监控
 ├── repos/                        ← 代码仓库 symlink
 ├── messages/                     ← IM 消息落地
 ├── tasks/                        ← Agent 间任务传递
