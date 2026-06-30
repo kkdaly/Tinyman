@@ -63,11 +63,31 @@ function checkDeps(harness) {
 // ── 身份初始化 ──
 function initIdentities(agents) {
   agents.forEach((a) => {
-    const identityPath = path.join(ROOT_DIR, 'agents', a.session, 'IDENTITY.md');
-    const defaultPath = path.join(ROOT_DIR, 'agents', a.session, 'IDENTITY.default.md');
-    if (!fs.existsSync(identityPath) && fs.existsSync(defaultPath)) {
-      fs.copyFileSync(defaultPath, identityPath);
+    const agentDir = path.join(ROOT_DIR, 'agents', a.session);
+    const identityPath = path.join(agentDir, 'IDENTITY.md');
+    const agentsPath = path.join(agentDir, 'AGENTS.md');
+    const defaultIdentity = path.join(agentDir, 'IDENTITY.default.md');
+
+    // 目录不存在 → 创建
+    if (!fs.existsSync(agentDir)) {
+      fs.mkdirSync(agentDir);
     }
+
+    // IDENTITY.md 不存在 → 从 default 复制，否则创建最小模板
+    if (!fs.existsSync(identityPath)) {
+      if (fs.existsSync(defaultIdentity)) {
+        fs.copyFileSync(defaultIdentity, identityPath);
+      } else {
+        fs.writeFileSync(identityPath, `# ${a.identity} Agent\n\n## 你是谁\n\n${a.description || '待配置'}\n\n## 工作流程\n\n被 watcher.js 唤醒后处理任务。\n`);
+      }
+    }
+
+    // AGENTS.md 不存在 → 创建最小模板
+    if (!fs.existsSync(agentsPath)) {
+      fs.writeFileSync(agentsPath, `# ${a.identity} Agent 操作指令\n\n## 消费任务\n\n被 watcher.js 唤醒后处理任务，完成后写结果文件并删除请求文件。\n`);
+    }
+
+    console.log(`   ${a.session} 身份已就绪`);
   });
 }
 
