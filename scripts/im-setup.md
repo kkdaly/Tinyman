@@ -89,7 +89,7 @@ lark-cli auth login --recommend
 
 ```bash
 cd 项目目录
-./scripts/deploy.sh
+node scripts/deploy.js
 ```
 
 输出看到 "部署完成" 就 OK 了。
@@ -120,9 +120,9 @@ tmux attach -t gateway-agent   # 进入
 ## 重新部署
 
 ```bash
-pkill -f msg-watcher.sh       # 停 watcher
+pkill -f watcher.js            # 停 watcher
 tmux kill-server               # 停所有 session
-./scripts/deploy.sh            # 重来
+node scripts/deploy.js         # 重来
 lark-cli event +subscribe --output-dir messages/  # 重订消息
 ```
 
@@ -130,7 +130,7 @@ lark-cli event +subscribe --output-dir messages/  # 重订消息
 
 ```bash
 # 改轮询速度（默认 1s 轮询 / 15s 冷却）
-POLL_INTERVAL=5 POLL_COOLDOWN=30 ./scripts/deploy.sh
+node scripts/deploy.js --poll-interval 5 --poll-cooldown 30
 ```
 
 ## 常见问题
@@ -141,14 +141,14 @@ POLL_INTERVAL=5 POLL_COOLDOWN=30 ./scripts/deploy.sh
 | Agent 不回复 | 权限弹窗卡住了 | attach 进去点 Yes，选 always allow |
 | 消息落地目录不对 | lark-cli 在 `~` 下跑的 | `cd` 到项目目录再执行 |
 | 多久回复 | Agent 查资料需要 10-60 秒 | 正常，👀 反应会先出现 |
-| 换个项目 | 改第二步的 3 个文件 | 重跑 `./scripts/deploy.sh` |
+| 换个项目 | 改第二步的 3 个文件 | 重跑 `node scripts/deploy.js` |
 | 换 IM 平台 | 改 `agents/gateway-agent/AGENTS.md` 里的回复命令 | 把 lark-cli 换成你的 |
 | 重装 tmux | macOS 13 装不上 | 换 macOS 14+ 或 Linux |
 
 ## 停止
 
 ```bash
-pkill -f msg-watcher.sh
+pkill -f watcher.js
 tmux kill-server
 ```
 
@@ -162,9 +162,9 @@ tmux kill-server
 ├── knowledge-base/              ← 你的项目文档
 ├── repos/                       ← 你的代码仓库 symlink
 ├── scripts/
-│   ├── deploy.sh                ← 一键部署
-│   ├── msg-watcher.sh           ← 消息轮询 + 唤醒
+│   ├── deploy.js                ← 一键部署
+│   ├── watcher.js               ← 消息轮询 + 唤醒
 │   ├── supervisor.sh            ← 监工巡检
-│   └── *.sh                     ← 任务 watcher
+│   └── *.js                     ← 任务相关脚本
 └── messages/                    ← IM 消息落地（运行时）
 ```

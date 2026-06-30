@@ -46,7 +46,7 @@ Runs multiple AI agents as long-lived tmux sessions. Messages land in a director
 |------|--------|------|
 | 1. 装依赖 | `brew install tmux` + `npm install -g claude-code` | 5 min |
 | 2. API Key | `export ANTHROPIC_API_KEY=sk-xxx` | 1 min |
-| 3. 部署 | `./scripts/deploy.sh` 一条命令 | 1 min |
+| 3. 部署 | `node scripts/deploy.js` 一条命令 | 1 min |
 | 4. 绑飞书 | 创建应用 → 启动订阅 | 5 min |
 | 5. 发消息 | 给 Bot 说第一句话，自动配置完成 | 1 min |
 
@@ -61,7 +61,7 @@ sudo apt install tmux
 
 # AI CLI（选一个）
 npm install -g @anthropic-ai/claude-code   # Claude Code（推荐）
-# 或用 HARNESS=codex 切 Codex CLI
+# 或用 --harness codex 切 Codex CLI
 ```
 
 ### 第 2 步：配置 API Key / Configure
@@ -78,7 +78,7 @@ export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
 ```bash
 git clone https://github.com/kkdaly/Tinyman.git
 cd Tinyman
-./scripts/deploy.sh
+node scripts/deploy.js
 ```
 
 看到 "部署完成" 即成功。脚本自动完成依赖检查、条款接受、tmux 会话创建、后台进程启动。 / One command — dependency check, terms acceptance, session creation, background watchers.
@@ -126,9 +126,9 @@ Any mechanism that writes to `messages/` works. Switch the reply command in `age
 ## 切换 Harness / Switch Harness
 
 ```bash
-HARNESS=codex ./scripts/deploy.sh     # Codex CLI
-HARNESS=trae ./scripts/deploy.sh      # Trae CLI
-HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
+node scripts/deploy.js --harness codex     # Codex CLI
+node scripts/deploy.js --harness trae      # Trae CLI
+node scripts/deploy.js --harness openclaw  # OpenClaw
 # 默认 Claude Code / Defaults to Claude Code
 ```
 
@@ -200,7 +200,7 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 ## 定制 / Customize
 
 1. **换场景 / Change scenario** — 编辑 `agents/gateway-agent/IDENTITY.md`（身份）和 `AGENTS.md`（操作）
-2. **加 Agent / Add agent** — 在 `agents/<name>/` 下创建 IDENTITY.md + AGENTS.md，deploy.sh 加 session 和 watcher
+2. **加 Agent / Add agent** — 在 `agents/<name>/` 下创建 IDENTITY.md + AGENTS.md，deploy.js 加 session 和 watcher
 3. **填知识库 / Fill knowledge** — 编辑 `knowledge-base/` 写项目文档
 4. **关联代码 / Link code** — `ln -s /your/repo repos/` 让 agent 能读源码
 5. **换 IM / Switch IM** — 改 `agents/gateway-agent/AGENTS.md` 中的回复命令
@@ -216,9 +216,9 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 ├── agents/                       ← Agent 身份(IDENTITY.md) + 操作(AGENTS.md)
 ├── knowledge-base/               ← 项目知识库
 ├── scripts/
-│   ├── deploy.sh                 ← 一键部署
-│   ├── harness-presets.sh        ← Harness 预设
-│   ├── *-watcher.sh              ← 消息 + 任务唤醒
+│   ├── deploy.js                 ← 一键部署
+│   ├── harness-presets.js        ← Harness 预设
+│   ├── watcher.js                ← 消息 + 任务唤醒
 │   └── supervisor.sh             ← 健康监控
 ├── repos/                        ← 代码仓库 symlink
 ├── messages/                     ← IM 消息落地
@@ -228,8 +228,8 @@ HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
 
 ## 亮点 / Highlights
 
-- **一条命令部署。** `./scripts/deploy.sh`，剩下的自动搞定。依赖检查、条款接受、session 创建、身份注入全自动。
-- **不绑任何模型。** 默认 Claude Code，`HARNESS=codex` 就切 Codex，加 3 行配置支持任意 CLI 工具。
+- **一条命令部署。** `node scripts/deploy.js`，剩下的自动搞定。依赖检查、条款接受、session 创建、身份注入全自动。
+- **不绑任何模型。** 默认 Claude Code，`--harness codex` 就切 Codex，加 3 行配置支持任意 CLI 工具。
 - **多 Agent 真协同。** 不是 demo 级——5 个 Agent 各自独立 session，文件级 IPC，互不干扰，可随时 attach 进去看它在想什么。
 - **安全内置。** 三层防线：防 prompt 注入、禁止危险命令、禁止泄露敏感信息。配置只能管理员 tmux 直连改。
 - **上下文持久。** tmux 长驻，不需要每轮请求重建上下文。lambda/webhook 模式的天生劣势，这里不存在。

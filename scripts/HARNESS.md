@@ -5,20 +5,20 @@
 一条命令：
 
 ```bash
-HARNESS=codex ./scripts/deploy.sh     # Codex CLI
-HARNESS=trae ./scripts/deploy.sh      # Trae CLI
-HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
+node scripts/deploy.js --harness codex     # Codex CLI
+node scripts/deploy.js --harness trae      # Trae CLI
+node scripts/deploy.js --harness openclaw  # OpenClaw
 # 默认 Claude Code
-./scripts/deploy.sh
+node scripts/deploy.js
 ```
 
 或写入 `.env`：
 
 ```bash
-HARNESS=codex
+--harness codex
 ```
 
-所有 harness 差异集中在 `scripts/harness-presets.sh`：
+所有 harness 差异集中在 `scripts/harness-presets.js`：
 
 | 配置项 | 说明 |
 |--------|------|
@@ -28,21 +28,20 @@ HARNESS=codex
 
 ### 添加新 Harness
 
-编辑 `scripts/harness-presets.sh`，加一个 case 分支：
+编辑 `scripts/harness-presets.js`，在 `presets` 对象中加一项：
 
-```bash
-case "$HARNESS" in
-    # ... 现有预设 ...
-    mytool)
-        HARNESS_NAME="MyTool"
-        HARNESS_START_CMD="mytool chat"
-        HARNESS_BUSY_PATTERN='(Processing|Thinking)'
-        HARNESS_IDLE_PATTERN='(❯|\$)'
-        ;;
-esac
+```js
+mytool: {
+  name: 'MyTool',
+  startCmd: 'mytool chat',
+  busyPattern: /(Processing|Thinking)/,
+  idlePattern: /(❯|\$)/,
+  configDir: '.mytool',
+  needsTermsAccept: false,
+},
 ```
 
-其余全部复用：tmux、所有 watcher、supervisor、知识库、agents/。
+其余全部复用：tmux、watcher、supervisor、知识库、agents/。
 
 ## 换 IM 平台（Lark → 企业微信 / Slack / 其他）
 
