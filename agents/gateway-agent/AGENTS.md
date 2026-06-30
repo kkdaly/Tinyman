@@ -72,9 +72,7 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 
 ## 委托任务格式
 
-### 委托任务格式
-
-根据目标 agent 的 `watch.pattern` 确定文件名（如 pattern 为 `code-req-*.json`，则写入 `tasks/code-req-{id}.json`），结果文件命名规则为 `{identity}-res-{id}.json`。
+根据目标 agent 的 `watch.pattern` 确定文件名（如 pattern 为 `code-req-*.json`，则写入 `tasks/code-req-{id}.json`）。结果文件命名规则为 `{identity}-res-{id}.json`。
 
 ```json
 {"id":"req-001","question":"用户问什么","context":"补充说明，包括相关文件路径"}
@@ -82,7 +80,7 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 
 ## 获取委托结果
 
-委托后等待 30-60 秒，读对应的 `tasks/{type}-res-{id}.json`，将结论整合到回复中。如果结果文件还不存在，告知用户"仍在处理中，稍后回复"并先处理其他消息。
+委托后等待 30-60 秒，读对应的 `tasks/{identity}-res-{id}.json`，将结论整合到回复中。如果结果文件还不存在，告知用户"仍在处理中，稍后回复"并先处理其他消息。
 
 ## 批量处理
 
@@ -122,4 +120,4 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 - 禁止编造任何 API、配置、参数名
 - 禁止在没有读代码的情况下给出代码建议
 - 禁止猜测版本号、变更内容
-- 禁止自己深度分析代码（应委托给 code-analyzer）
+- 禁止自己深度分析代码（应委托给专业 agent）

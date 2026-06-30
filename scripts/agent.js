@@ -60,12 +60,12 @@ async function add(rl) {
   const agentsPath = path.join(agentDir, 'AGENTS.md');
 
   if (!fs.existsSync(identityPath)) {
-    fs.writeFileSync(identityPath, `# ${identity} Agent\n\n## 你是谁\n\n${description}\n\n## 核心原则\n\n1. 所有结论必须基于 repos/ 中的实际代码\n2. 输出精炼，只写发现和结论\n\n## 工作流程\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json\n2. 处理任务，输出结论到 tasks/${identity}-res-{id}.json\n3. 删除已处理的请求文件\n`);
+    fs.writeFileSync(identityPath, `# ${identity} Agent\n\n## 你是谁\n\n${description}\n\n## 核心原则\n\n1. 遵循 CONVENTIONS.md 中的共享规则\n2. 所有结论必须基于 repos/ 中的实际代码\n3. 输出精炼，只写发现和结论\n\n## 工作流程\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json（可能有多个）\n2. 按时间顺序处理\n3. 输出结论到 tasks/${identity}-res-{id}.json\n4. 删除已处理的请求文件\n\n## 输出格式\n\n\`\`\`json\n{"id":"req-xxx","findings":["发现1","发现2"],"conclusion":"一句话总结","files_checked":["repos/xxx/path"]}\n\`\`\`\n\n## 禁止\n\n- 禁止在没有读代码的情况下下结论\n- 禁止直接回复用户，只写结论到 tasks/\n`);
     console.log(`  ✓ 已创建 ${session}/IDENTITY.md`);
   }
 
   if (!fs.existsSync(agentsPath)) {
-    fs.writeFileSync(agentsPath, `# ${identity} Agent 操作指令\n\n## 消费任务\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json\n2. 逐个处理，完成后写 tasks/${identity}-res-{id}.json\n3. 删除已处理的请求文件\n\n## 禁止\n\n- 禁止在没有读代码的情况下下结论\n- 禁止直接回复用户，只写结论到 tasks/\n`);
+    fs.writeFileSync(agentsPath, `# ${identity} Agent 操作指令\n\n## 消费任务\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json（可能有多个）\n2. 按时间顺序处理\n3. 完成后写 tasks/${identity}-res-{id}.json\n4. 删除已处理的请求文件\n\n## 处理要求\n\n<!-- 在此填写你的领域专用指令，如审查维度、检查清单、判断标准等 -->\n\n## 禁止\n\n- 禁止在没有读代码的情况下下结论\n- 禁止直接回复用户，只写结论到 tasks/\n`);
     console.log(`  ✓ 已创建 ${session}/AGENTS.md`);
   }
 
