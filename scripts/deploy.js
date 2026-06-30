@@ -196,11 +196,11 @@ async function main() {
     sendKeys(session, `cd ${ROOT_DIR} && ${harness.startCmd}`);
     await waitUntilReady(session, harness, 30);
 
-    let initCmd = `读${identity}的IDENTITY和AGENTS`;
+    let initCmd = `读CONVENTIONS和${identity}的IDENTITY和AGENTS`;
     if (identity === 'gateway') {
       const specialists = agents.filter((a) => a.identity !== 'gateway')
         .map((a) => `  - ${a.session}: ${a.description || ''}（委托文件: tasks/${(a.watch && a.watch.pattern) || a.identity + '-req-*.json'}）`).join('\n');
-      initCmd = `读gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}。可委托的专业Agent:\n${specialists}`;
+      initCmd = `读CONVENTIONS和gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}。可委托的专业Agent:\n${specialists}`;
     }
     sendKeys(session, initCmd);
   }
