@@ -83,11 +83,10 @@ function checkDeps(harness) {
 }
 
 // ── 身份初始化 ──
-function initIdentities() {
-  const agents = ['gateway-agent', 'code-analyzer', 'code-review-agent', 'deploy-monitor'];
-  agents.forEach((agent) => {
-    const identityPath = path.join(ROOT_DIR, 'agents', agent, 'IDENTITY.md');
-    const defaultPath = path.join(ROOT_DIR, 'agents', agent, 'IDENTITY.default.md');
+function initIdentities(agents) {
+  agents.forEach((a) => {
+    const identityPath = path.join(ROOT_DIR, 'agents', a.session, 'IDENTITY.md');
+    const defaultPath = path.join(ROOT_DIR, 'agents', a.session, 'IDENTITY.default.md');
     if (!fs.existsSync(identityPath) && fs.existsSync(defaultPath)) {
       fs.copyFileSync(defaultPath, identityPath);
     }
@@ -120,21 +119,7 @@ async function acceptTerms(harness) {
   console.log('   ✓ 条款已接受');
 }
 
-// ── Agent 列表 ──
-const AGENTS = [
-  { session: 'gateway-agent', identity: 'gateway' },
-  { session: 'code-analyzer', identity: 'code-analyzer' },
-  { session: 'code-review-agent', identity: 'code-review-agent' },
-  { session: 'deploy-monitor', identity: 'deploy-monitor' },
-];
-
-// Watcher 配置 — 新增 agent 时在这里加一行
-const WATCHERS = [
-  { watch: 'messages', session: 'gateway-agent', cmd: '读msg并lark回复' },
-  { watch: 'tasks', pattern: 'code-req-*.json', session: 'code-analyzer', cmd: '读tasks并分析代码写结果' },
-  { watch: 'tasks', pattern: 'review-req-*.json', session: 'code-review-agent', cmd: '读tasks/review-req并审查代码' },
-  { watch: 'tasks', pattern: 'deploy-req-*.json', session: 'deploy-monitor', cmd: '读tasks/deploy-req并巡检发布' },
-];
+// ── 从配置读取 agent 和 watcher 列表 ──
 
 // ── 主流程 ──
 async function main() {
@@ -149,13 +134,20 @@ async function main() {
   console.log(`==> 轮询间隔: ${config.pollInterval}s / 冷却: ${config.pollCooldown}s`);
 
   checkDeps(harness);
-  initIdentities();
+
+  const agents = config.agents || [];
+  const watchers = config.watchers || [];
+  const supervisorStalenessSec = config.supervisorStalenessSec || 180;
+  const messageBacklogThreshold = config.messageBacklogThreshold || 10;
+  const loopDetectionThreshold = config.loopDetectionThreshold || 5;
+
+  initIdentities(agents);
   await acceptTerms(harness);
 
   // 创建 tmux sessions
   console.log('==> 创建 tmux 会话...');
   const ALL_SESSIONS = [
-    ...AGENTS.map((a) => a.session),
+    ...agents.map((a) => a.session),
     'supervisor',
   ];
 
@@ -169,20 +161,20 @@ async function main() {
   });
 
   // 启动 Agent
-  for (const { session, identity } of AGENTS) {
+  for (const { session, identity } of agents) {
     console.log(`==> 在 ${session} 会话中启动 ${harness.name}...`);
     sendKeys(session, `cd ${ROOT_DIR} && ${harness.startCmd}`);
     await waitUntilReady(session, harness, 30);
     sendKeys(session, `读${identity}的IDENTITY和AGENTS`);
   }
 
-  // 启动监工循环
+  // 启动监工循环 — 传递 supervisor 配置参数
   console.log('==> 在 supervisor 会话中启动监工循环...');
-  sendKeys('supervisor', `cd ${ROOT_DIR} && while true; do node scripts/supervisor.js; sleep 60; done`);
+  sendKeys('supervisor', `cd ${ROOT_DIR} && while true; do node scripts/supervisor.js --staleness ${supervisorStalenessSec} --backlog ${messageBacklogThreshold} --loop-threshold ${loopDetectionThreshold}; sleep 60; done`);
 
   // 启动 watcher 后台进程
   console.log('==> 启动消息流水线...');
-  WATCHERS.forEach((w) => {
+  watchers.forEach((w) => {
     const args = [
       path.join(__dirname, 'watcher.js'),
       '--watch', w.watch,

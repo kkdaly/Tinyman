@@ -11,5 +11,17 @@
     "messages": "messages",
     "tasks": "tasks",
     "worklogs": "worklogs"
-  }
+  },
+  "agents": [
+    { "session": "gateway-agent", "identity": "gateway", "stalenessSec": 180 },
+    { "session": "code-analyzer", "identity": "code-analyzer", "stalenessSec": 300 },
+    { "session": "code-review-agent", "identity": "code-review-agent", "stalenessSec": 300 },
+    { "session": "deploy-monitor", "identity": "deploy-monitor", "stalenessSec": 300 }
+  ],
+  "watchers": [
+    { "watch": "messages", "session": "gateway-agent", "cmd": "读msg并lark回复" },
+    { "watch": "tasks", "pattern": "code-req-*.json", "session": "code-analyzer", "cmd": "读tasks并分析代码写结果" },
+    { "watch": "tasks", "pattern": "review-req-*.json", "session": "code-review-agent", "cmd": "读tasks/review-req并审查代码" },
+    { "watch": "tasks", "pattern": "deploy-req-*.json", "session": "deploy-monitor", "cmd": "读tasks/deploy-req并巡检发布" }
+  ]
 }

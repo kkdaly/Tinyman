@@ -9,22 +9,36 @@ const { hasSession, capturePane, isHumanAttached, getSessionActivity } = require
 
 const rootDir = path.resolve(__dirname, '..');
 
+// ── CLI 参数 ──
+const cliArgs = {};
+for (let i = 2; i < process.argv.length; i++) {
+  const arg = process.argv[i];
+  if (arg.startsWith('--')) {
+    const key = arg.slice(2);
+    const val = process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[++i] : 'true';
+    cliArgs[key] = val;
+  }
+}
+
 // ── 配置 ──
 let config;
 try {
   config = JSON.parse(fs.readFileSync(path.join(rootDir, 'tinyman.config.json'), 'utf8'));
 } catch {
-  config = { dirs: { messages: 'messages' } };
+  config = { agents: [], dirs: { messages: 'messages' } };
 }
 
 const messagesDir = path.resolve(rootDir, config.dirs.messages || 'messages');
+const defaultStaleness = parseInt(cliArgs.staleness) || config.supervisorStalenessSec || 180;
+const backlogThreshold = parseInt(cliArgs.backlog) || config.messageBacklogThreshold || 10;
+const loopThreshold = parseInt(cliArgs['loop-threshold']) || config.loopDetectionThreshold || 5;
 
-const CHECKS = [
-  { session: 'gateway-agent', label: 'Gateway', stalenessSec: 180 },
-  { session: 'code-analyzer', label: 'CodeAnalyzer', stalenessSec: 300 },
-  { session: 'code-review-agent', label: 'CodeReview', stalenessSec: 300 },
-  { session: 'deploy-monitor', label: 'DeployMonitor', stalenessSec: 300 },
-];
+// ── 从 config.agents 构建检查列表 ──
+const CHECKS = (config.agents || []).map((a) => ({
+  session: a.session,
+  label: a.session.replace(/-agent$/, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+  stalenessSec: a.stalenessSec || defaultStaleness,
+}));
 
 // ── 告警 ──
 function alert(level, title, detail) {
@@ -72,7 +86,7 @@ function checkSession(session, label, stalenessSec) {
     lineCounts[line] = (lineCounts[line] || 0) + 1;
   });
   const maxRepeat = Math.max(...Object.values(lineCounts));
-  if (maxRepeat > 5) {
+  if (maxRepeat > loopThreshold) {
     alert('critical', `${label} 疑似循环`, `session: ${session}\n最近输出:\n${tail.join('\n')}`);
     return false;
   }
@@ -87,7 +101,7 @@ function main() {
   // 消息积压检查
   try {
     const files = fs.readdirSync(messagesDir).filter((f) => f !== '.gitkeep');
-    if (files.length > 10) {
+    if (files.length > backlogThreshold) {
       alert('warn', `消息积压: ${files.length} 条`, `目录: ${messagesDir}`);
     }
   } catch {
