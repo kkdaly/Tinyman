@@ -12,18 +12,10 @@ const { spawn, execSync } = require('child_process');
 const { resolve: resolveHarness } = require('./harness-presets');
 const { createSession, hasSession, sendKeys, waitUntilReady } = require('./lib/tmux-utils');
 
-const ROOT_DIR = path.resolve(__dirname, '..');
+const { parseArgs } = require('./lib/cli-args');
 
-// ── CLI 参数 ──
-const cliArgs = {};
-for (let i = 2; i < process.argv.length; i++) {
-  const arg = process.argv[i];
-  if (arg.startsWith('--')) {
-    const key = arg.slice(2);
-    const val = process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[++i] : 'true';
-    cliArgs[key] = val;
-  }
-}
+const ROOT_DIR = path.resolve(__dirname, '..');
+const cliArgs = parseArgs();
 
 // ── 加载配置 ──
 function loadConfig() {

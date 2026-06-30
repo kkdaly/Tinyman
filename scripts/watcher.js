@@ -7,19 +7,11 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { parseArgs } = require('./lib/cli-args');
 const { hasTmux, hasSession, isAgentBusy, sendKeys, sleep } = require('./lib/tmux-utils');
 const { resolve: resolveHarness } = require('./harness-presets');
 
-// ── CLI 参数解析 ──
-const args = {};
-for (let i = 2; i < process.argv.length; i++) {
-  const arg = process.argv[i];
-  if (arg.startsWith('--')) {
-    const key = arg.slice(2);
-    const val = process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[++i] : 'true';
-    args[key] = val;
-  }
-}
+const args = parseArgs();
 
 const watchDir = args.watch;
 const filePattern = args.pattern;
