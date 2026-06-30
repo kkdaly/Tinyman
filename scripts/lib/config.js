@@ -8,6 +8,7 @@ const DEFAULTS = {
   projectName: 'Tinyman',
   projectDesc: '',
   imPlatform: 'lark',
+  promptBase: 'CONVENTIONS.md',
   pollInterval: 1,
   pollCooldown: 15,
   dirs: {

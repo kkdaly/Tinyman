@@ -3,6 +3,7 @@
   "projectName": "Tinyman",
   "projectDesc": "AI Agent 平台",
   "imPlatform": "lark",
+  "promptBase": "CONVENTIONS.md",
   "pollInterval": 1,
   "pollCooldown": 15,
   "dirs": {
