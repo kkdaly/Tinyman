@@ -1,12 +1,6 @@
 # Tinyman / AI Agent 平台
 
-> **花一天搭起来，花一周调 prompt，然后它就跑好几个月。**
->
-> Build it in a day. Tune it for a week. It runs for months.
-
-一套通用 AI Agent 基础设施。**不依赖 RAG、不依赖编排框架、不依赖向量数据库。** 生产验证过——在实际业务中稳定运行数月，人工介入率极低。
-
-A production-proven, general-purpose AI agent infrastructure. **No RAG. No orchestration frameworks. No vector databases.** Just tmux + Node.js + prompts. Cross-platform (macOS/Linux/Windows). Battle-tested in production for months.
+一套通用 AI Agent 基础设施。**不依赖 RAG、不依赖编排框架、不依赖向量数据库。** Just tmux + Node.js + prompts。跨平台 (macOS/Linux/Windows)。
 
 ## 为什么选这个 / Why This
 
@@ -190,7 +184,8 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 - **安全内置。** 防 prompt 注入、禁止危险命令、禁止泄露敏感信息。
 - **上下文持久。** tmux 长驻，不需要每轮重建上下文。
 - **跨平台。** macOS/Linux 原生 tmux，Windows 用 itmux。
-- **生产验证。** 真实业务场景稳定运行数月。
+
+
 
 ## 谁适合用 / Who Is This For
 
