@@ -1,0 +1,15 @@
+{
+  "harness": "claude",
+  "projectName": "Tinyman",
+  "projectDesc": "AI Agent 平台",
+  "imPlatform": "lark",
+  "pollInterval": 1,
+  "pollCooldown": 15,
+  "dirs": {
+    "repos": "repos",
+    "knowledge": "knowledge-base",
+    "messages": "messages",
+    "tasks": "tasks",
+    "worklogs": "worklogs"
+  }
+}
