@@ -1,6 +1,6 @@
 .DS_Store
 .superpowers/
-docs/
+docs/superpowers/
 worklogs/
 messages/*
 !messages/.gitkeep
