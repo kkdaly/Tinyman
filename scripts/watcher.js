@@ -97,8 +97,9 @@ async function run() {
   while (true) {
     try {
       await loop();
-    } catch {
-      // 静默继续
+    } catch (err) {
+      const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
+      process.stderr.write(`[${ts}] watcher[${session}] error: ${err.message}\n`);
     }
     await sleep(pollInterval);
   }
