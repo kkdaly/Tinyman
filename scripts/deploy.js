@@ -13,7 +13,7 @@ const { resolve: resolveHarness } = require('./harness-presets');
 const { createSession, hasSession, sendKeys, waitUntilReady } = require('./lib/tmux-utils');
 
 const { parseArgs } = require('./lib/cli-args');
-const { loadConfig } = require('./lib/config');
+const { loadConfig, validateConfig } = require('./lib/config');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const cliArgs = parseArgs();
@@ -105,6 +105,13 @@ async function main() {
   if (cliArgs.harness) config.harness = cliArgs.harness;
   if (cliArgs['poll-interval']) config.pollInterval = parseInt(cliArgs['poll-interval']);
   if (cliArgs['poll-cooldown']) config.pollCooldown = parseInt(cliArgs['poll-cooldown']);
+
+  const errors = validateConfig(config);
+  if (errors.length > 0) {
+    console.error('✗ 配置校验失败:');
+    errors.forEach((e) => console.error(`  - ${e}`));
+    process.exit(1);
+  }
 
   const harness = resolveHarness(config.harness);
 
