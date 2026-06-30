@@ -135,7 +135,16 @@ async function main() {
 
   checkDeps(harness);
 
+  const dirs = config.dirs || {};
+  const messagesDir = dirs.messages || 'messages';
+  const reposDir = dirs.repos || 'repos';
+  const knowledgeDir = dirs.knowledge || 'knowledge-base';
+  const worklogsDir = dirs.worklogs || 'worklogs';
+
   const agents = config.agents || [];
+  const projectName = config.projectName || 'Tinyman';
+  const projectDesc = config.projectDesc || '';
+  const imPlatform = config.imPlatform || 'lark';
   const supervisorStalenessSec = config.supervisorStalenessSec || 180;
   const messageBacklogThreshold = config.messageBacklogThreshold || 10;
   const loopDetectionThreshold = config.loopDetectionThreshold || 5;
@@ -164,7 +173,12 @@ async function main() {
     console.log(`==> 在 ${session} 会话中启动 ${harness.name}...`);
     sendKeys(session, `cd ${ROOT_DIR} && ${harness.startCmd}`);
     await waitUntilReady(session, harness, 30);
-    sendKeys(session, `读${identity}的IDENTITY和AGENTS`);
+
+    let initCmd = `读${identity}的IDENTITY和AGENTS`;
+    if (identity === 'gateway') {
+      initCmd = `读gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}`;
+    }
+    sendKeys(session, initCmd);
   }
 
   // 启动监工循环 — 传递 supervisor 配置参数
