@@ -199,8 +199,8 @@ async function main() {
     let initCmd = `读${promptBase}和${identity}的IDENTITY和AGENTS`;
     if (identity === 'gateway') {
       const specialists = agents.filter((a) => a.identity !== 'gateway')
-        .map((a) => `  - ${a.session}: ${a.description || ''}（委托文件: tasks/${(a.watch && a.watch.pattern) || a.identity + '-req-*.json'}）`).join('\n');
-      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}。可委托的专业Agent:\n${specialists}`;
+        .map((a) => `${a.session}: ${a.description || ''}（委托文件: tasks/${(a.watch && a.watch.pattern) || a.identity + '-req-*.json'}）`).join(' ; ');
+      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}。可委托的专业Agent: ${specialists}`;
     }
     sendKeys(session, initCmd);
   }
