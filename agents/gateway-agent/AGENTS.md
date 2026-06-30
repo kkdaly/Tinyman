@@ -63,34 +63,22 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 
 **读完每条消息后，先判断类型，再决定是自己处理还是委托给专业 Agent。**
 
-启动时你已获知各专业 Agent 的描述。根据描述判断：
+读 `tinyman.config.json`，从 `agents` 数组中排除自己（gateway-agent），有 `watch` 字段的就是可委托的专业 Agent。根据各 agent 的 `description` 判断应该委托给谁，`watch.pattern` 就是委托写文件时要用到的文件名模式。
 
 - **你自己能快速回答的**（查知识库 + 读代码确认即可）→ 直接回复
 - **需要专业 Agent 深入处理的** → 写 `tasks/{identity}-req-{id}.json`，告知用户稍等
-
-委托格式参考下方「委托任务格式」。每个专业 Agent 的请求文件前缀不同（如 code-analyzer 对应 `code-req-*.json`），写错文件不会被唤醒。
 
 **重要：一旦判断需要委托，就不要自己分析，只写 task 文件。你不是超人。**
 
 ## 委托任务格式
 
-### 委托代码分析 → tasks/code-req-{id}.json（已有）
-```json
-{"id":"req-001","question":"用户问什么","files":["repos/xxx/path"],"context":"补充说明"}
-```
-结果在 `tasks/code-res-{id}.json`。
+### 委托任务格式
 
-### 委托 PR 审查 → tasks/review-req-{id}.json
-```json
-{"id":"req-001","repo":"仓库路径","branch":"分支名","pr_number":"PR号","diff":"git diff 输出或 PR 链接","context":"补充说明"}
-```
-结果在 `tasks/review-res-{id}.json`。
+根据目标 agent 的 `watch.pattern` 确定文件名（如 pattern 为 `code-req-*.json`，则写入 `tasks/code-req-{id}.json`），结果文件命名规则为 `{identity}-res-{id}.json`。
 
-### 委托发布巡检 → tasks/deploy-req-{id}.json
 ```json
-{"id":"req-001","env":"环境","build_log":"构建日志或链接","changes":"变更摘要","context":"补充说明"}
+{"id":"req-001","question":"用户问什么","context":"补充说明，包括相关文件路径"}
 ```
-结果在 `tasks/deploy-res-{id}.json`。
 
 ## 获取委托结果
 
