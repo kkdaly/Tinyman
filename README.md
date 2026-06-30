@@ -200,7 +200,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 ## 定制 / Customize
 
 1. **换场景 / Change scenario** — 编辑 `agents/gateway-agent/IDENTITY.md`（身份）和 `AGENTS.md`（操作）
-2. **加 Agent / Add agent** — 在 `agents/<name>/` 下创建 IDENTITY.md + AGENTS.md，deploy.js 加 session 和 watcher
+2. **加 Agent / Add agent** — 在 `agents/<name>/` 下创建 IDENTITY.md + AGENTS.md，`tinyman.config.json` 的 `agents` 和 `watchers` 各加一项
 3. **填知识库 / Fill knowledge** — 编辑 `knowledge-base/` 写项目文档
 4. **关联代码 / Link code** — `ln -s /your/repo repos/` 让 agent 能读源码
 5. **换 IM / Switch IM** — 改 `agents/gateway-agent/AGENTS.md` 中的回复命令

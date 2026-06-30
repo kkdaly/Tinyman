@@ -67,7 +67,7 @@ IM 消息 → messages/ → watcher (轮询) → tmux send-keys → Agent 处理
 3. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
 4. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
 5. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，deploy.js 的 AGENTS 和 WATCHERS 数组各加一项
+6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，`tinyman.config.json` 的 `agents` 和 `watchers` 数组各加一项
 
 ## 切换 IM 平台
 
