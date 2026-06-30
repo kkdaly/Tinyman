@@ -32,11 +32,20 @@ function alert(level, title, detail) {
   console.log(`[${timestamp}] [${level}] ${title}`);
   if (detail) console.log(detail);
   console.log('---');
-  // TODO: 替换为你使用的 IM 通知方式
-  // 例如 Lark webhook:
-  // const https = require('https');
-  // const webhookUrl = process.env.WEBHOOK_URL;
-  // if (webhookUrl) { ... }
+
+  const webhookUrl = process.env.WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  const payload = JSON.stringify({
+    msg_type: 'text',
+    content: { text: `[${level.toUpperCase()}] ${title}\n${detail || ''}` },
+  });
+
+  const mod = webhookUrl.startsWith('https') ? require('https') : require('http');
+  const req = mod.request(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  req.on('error', () => {}); // 静默失败，不阻塞巡检
+  req.write(payload);
+  req.end();
 }
 
 // ── 检查单个 session ──
