@@ -9,7 +9,7 @@
 # 编辑 tinyman.config.json，填入项目名称、IM 平台、agent 列表等
 
 # 2. 填写知识库
-# 编辑 knowledge-base/README.md 和 knowledge-base/your-project.md
+# 编辑 knowledge-base/ 下的文档，填项目信息
 
 # 3. 关联代码仓库
 ln -s /path/to/your/repo repos/your-project

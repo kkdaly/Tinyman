@@ -23,7 +23,7 @@ npm install -g @larksuite/cli
 
 ### 2.1 知识库 — 告诉 Agent 你的项目是什么
 
-编辑 `knowledge-base/your-project.md`，把 `<...>` 替换掉：
+编辑 `knowledge-base/` 下的文档，把项目信息填进去：
 
 ```markdown
 # 你的项目名

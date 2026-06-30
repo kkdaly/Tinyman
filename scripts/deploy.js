@@ -246,7 +246,7 @@ async function main() {
   console.log('  手动配置:');
   console.log('    agents/gateway-agent/IDENTITY.md   ← Agent 身份');
   console.log('    agents/gateway-agent/AGENTS.md   ← 回复方式');
-  console.log('    knowledge-base/your-project.md   ← 知识库');
+  console.log('    knowledge-base/   ← 填项目文档（Agent 按此回答）');
   console.log('');
   console.log('═══════════════════════════════════════════');
   console.log('  部署完成');
