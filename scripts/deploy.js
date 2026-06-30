@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { spawn, execSync } = require('child_process');
 const { resolve: resolveHarness } = require('./harness-presets');
 const { createSession, hasSession, sendKeys, waitUntilReady } = require('./lib/tmux-utils');
@@ -100,6 +101,30 @@ async function acceptTerms(harness) {
 
 // ── 主流程 ──
 async function main() {
+  // --stop: 停止所有 watcher 进程
+  if (cliArgs.stop) {
+    console.log('==> 停止所有 watcher...');
+    const pidDir = os.tmpdir();
+    let stopped = 0;
+    fs.readdirSync(pidDir).forEach((f) => {
+      if (f.startsWith('tinyman_watcher_') && f.endsWith('.pid')) {
+        const pidFile = path.join(pidDir, f);
+        try {
+          const pid = parseInt(fs.readFileSync(pidFile, 'utf8'), 10);
+          process.kill(pid, 'SIGTERM');
+          fs.unlinkSync(pidFile);
+          console.log(`   已停止 ${f.replace('tinyman_watcher_', '').replace('.pid', '')} (PID: ${pid})`);
+          stopped++;
+        } catch {
+          // 进程可能已退出，清理 pid 文件
+          try { fs.unlinkSync(pidFile); } catch {}
+        }
+      }
+    });
+    console.log(`   完成，停止了 ${stopped} 个 watcher`);
+    return;
+  }
+
   const config = loadConfig(ROOT_DIR);
   // CLI 参数覆盖配置文件
   if (cliArgs.harness) config.harness = cliArgs.harness;
@@ -195,7 +220,10 @@ async function main() {
       cwd: ROOT_DIR,
     });
     child.unref();
-    console.log(`   ${a.session} watcher PID: ${child.pid}`);
+
+    const pidFile = path.join(os.tmpdir(), `tinyman_watcher_${a.session}.pid`);
+    fs.writeFileSync(pidFile, String(child.pid));
+    console.log(`   ${a.session} watcher PID: ${child.pid} (${pidFile})`);
   });
 
   // 打印摘要
@@ -232,8 +260,8 @@ async function main() {
   console.log('  3. lark-cli event +subscribe --output-dir ./messages/');
   console.log('');
   console.log('停止:');
-  console.log('  pkill -f watcher.js');
-  console.log('  tmux kill-server');
+  console.log('  node scripts/deploy.js --stop         # 停止所有 watcher');
+  console.log('  tmux kill-server                      # 停止所有 session');
   console.log('═══════════════════════════════════════════');
 }
 
