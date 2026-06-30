@@ -6,7 +6,7 @@
 
 ```bash
 # 1. 配置你的项目信息
-# 编辑 tinyman.config.json，填入项目名称、IM 平台、agent 列表等
+# 编辑 tide.config.json，填入项目名称、IM 平台、agent 列表等
 
 # 2. 填写知识库
 # 编辑 knowledge-base/ 下的文档，填项目信息
@@ -39,7 +39,7 @@ IM 消息 → messages/ → watcher (轮询) → tmux send-keys → Agent 处理
 .
 ├── AGENTS.md                    ← 项目总览（本文件）
 ├── CONVENTIONS.md               ← Agent 平台底座 prompt
-├── tinyman.config.json          ← 配置文件
+├── tide.config.json          ← 配置文件
 ├── agents/
 │   ├── gateway-agent/              ← 主 Agent（消息入口 + AI 路由）
 │   ├── code-analyzer/             ← 代码分析 Agent
@@ -66,7 +66,7 @@ IM 消息 → messages/ → watcher (轮询) → tmux send-keys → Agent 处理
 3. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
 4. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
 5. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，`tinyman.config.json` 的 `agents` 数组加一项（含 `watch` 即可自动被轮询唤醒）
+6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，`tide.config.json` 的 `agents` 数组加一项（含 `watch` 即可自动被轮询唤醒）
 
 ## 切换 IM 平台
 

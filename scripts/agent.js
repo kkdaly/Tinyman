@@ -6,7 +6,7 @@ const readline = require('readline');
 const { loadConfig } = require('./lib/config');
 
 const ROOT = path.resolve(__dirname, '..');
-const CONFIG_PATH = path.join(ROOT, 'tinyman.config.json');
+const CONFIG_PATH = path.join(ROOT, 'tide.config.json');
 
 function ask(rl, prompt, defaultVal) {
   return new Promise((resolve) => {
@@ -38,7 +38,7 @@ async function add(rl) {
 
   const stalenessSec = parseInt(await ask(rl, '卡死超时秒数', '300'), 10);
 
-  // 写入 tinyman.config.json
+  // 写入 tide.config.json
   const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
   config.agents.push({
     session,
@@ -48,7 +48,7 @@ async function add(rl) {
     ...(watch ? { watch } : {}),
   });
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
-  console.log(`\n  ✓ 已更新 tinyman.config.json`);
+  console.log(`\n  ✓ 已更新 tide.config.json`);
 
   // 创建 agent 目录和文件
   const agentDir = path.join(ROOT, 'agents', session);
@@ -116,7 +116,7 @@ async function edit(rl, sessionName) {
   }
 
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
-  console.log(`\n  ✓ 已更新 tinyman.config.json`);
+  console.log(`\n  ✓ 已更新 tide.config.json`);
 
   console.log('\n下一步:');
   console.log(`  1. 需要改身份 → 编辑 agents/${sessionName}/IDENTITY.md`);
@@ -140,7 +140,7 @@ async function remove(rl, sessionName) {
 
   config.agents.splice(idx, 1);
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
-  console.log(`  ✓ 已从 tinyman.config.json 删除 ${sessionName}`);
+  console.log(`  ✓ 已从 tide.config.json 删除 ${sessionName}`);
   console.log(`  (agents/${sessionName}/ 目录保留，手动删除)`);
 }
 

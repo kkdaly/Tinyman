@@ -63,7 +63,7 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 
 **读完每条消息后，先判断类型，再决定是自己处理还是委托给专业 Agent。**
 
-读 `tinyman.config.json`，从 `agents` 数组中排除自己（gateway-agent），有 `watch` 字段的就是可委托的专业 Agent。根据各 agent 的 `description` 判断应该委托给谁，`watch.pattern` 就是委托写文件时要用到的文件名模式。
+读 `tide.config.json`，从 `agents` 数组中排除自己（gateway-agent），有 `watch` 字段的就是可委托的专业 Agent。根据各 agent 的 `description` 判断应该委托给谁，`watch.pattern` 就是委托写文件时要用到的文件名模式。
 
 - **你自己能快速回答的**（查知识库 + 读代码确认即可）→ 直接回复
 - **需要专业 Agent 深入处理的** → 写 `tasks/{identity}-req-{id}.json`，告知用户稍等

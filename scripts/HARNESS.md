@@ -12,7 +12,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 node scripts/deploy.js
 ```
 
-或写入 `tinyman.config.json` 的 `"harness"` 字段。
+或写入 `tide.config.json` 的 `"harness"` 字段。
 
 所有 harness 差异集中在 `scripts/harness-presets.js`：
 

@@ -86,7 +86,7 @@
 
 | 步骤 | 文件 | 操作 |
 |------|------|------|
-| 加载配置 | `scripts/lib/config.js:23-37` | 读 `tinyman.config.json` → 合并 DEFAULTS |
+| 加载配置 | `scripts/lib/config.js:23-37` | 读 `tide.config.json` → 合并 DEFAULTS |
 | 解析参数 | `scripts/lib/cli-args.js:4-16` | `--staleness --backlog --loop-threshold` |
 | 构建检查列表 | `scripts/supervisor.js:23-27` | 从 config.agents 派生 `[{session, label, stalenessSec}]` |
 

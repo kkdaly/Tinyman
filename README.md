@@ -1,4 +1,4 @@
-# Tinyman / AI Agent 平台
+# Tide / AI Agent 平台
 
 一套通用 AI Agent 基础设施。**不依赖 RAG、不依赖编排框架、不依赖向量数据库。** Just tmux + Node.js + prompts。macOS / Linux 可用，Windows 需 itmux（未充分测试）。
 
@@ -62,14 +62,14 @@ npm install -g @anthropic-ai/claude-code   # Claude Code（推荐）
 export ANTHROPIC_API_KEY=sk-xxx
 export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic  # 如用中转
 
-# 编辑 tinyman.config.json，填项目信息、选择 harness
+# 编辑 tide.config.json，填项目信息、选择 harness
 ```
 
 ### 第 3 步：部署 / Deploy
 
 ```bash
-git clone https://github.com/kkdaly/Tinyman.git
-cd Tinyman
+git clone https://github.com/kkdaly/Tide.git
+cd Tide
 node scripts/deploy.js
 ```
 
@@ -102,7 +102,7 @@ node scripts/agent.js --edit <session>    # 修改 agent 配置
 node scripts/agent.js --remove <session>  # 删除 agent
 ```
 
-或直接编辑 `tinyman.config.json` 的 `agents` 数组，重新部署即可。
+或直接编辑 `tide.config.json` 的 `agents` 数组，重新部署即可。
 
 ## 切换 Harness / Switch Harness
 
@@ -138,7 +138,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 ## 定制 / Customize
 
 1. **改 Agent 身份** — 编辑 `agents/<name>/IDENTITY.md` + `AGENTS.md`
-2. **加新 Agent** — `node scripts/agent.js --add` 或编辑 `tinyman.config.json`
+2. **加新 Agent** — `node scripts/agent.js --add` 或编辑 `tide.config.json`
 3. **填知识库** — 编辑 `knowledge-base/` 写项目文档（只写"为什么"和"踩过的坑"）
 4. **关联代码** — `ln -s /your/repo repos/` 让 agent 能读源码
 5. **换 IM** — 改 `agents/gateway-agent/AGENTS.md` 中的回复命令
@@ -149,7 +149,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 ```
 .
 ├── README.md
-├── tinyman.config.json            ← 配置文件（agent 列表、目录、harness）
+├── tide.config.json            ← 配置文件（agent 列表、目录、harness）
 ├── CONVENTIONS.md                 ← Agent 共享底座 prompt
 ├── AGENTS.md                      ← AI 指令总览
 ├── agents/                        ← 各 agent 身份 + 操作指令

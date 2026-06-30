@@ -7,7 +7,7 @@
 | 操作 | 文件 | 做什么 |
 |------|------|--------|
 | 解析 CLI 参数 | `scripts/lib/cli-args.js` | `--harness codex` → `{ harness: 'codex' }` |
-| 加载配置 | `scripts/lib/config.js` | 读 `tinyman.config.json` → 合并 DEFAULTS → 输出完整配置 |
+| 加载配置 | `scripts/lib/config.js` | 读 `tide.config.json` → 合并 DEFAULTS → 输出完整配置 |
 | 校验配置 | `scripts/lib/config.js` | 检查 harness 有效、数字合法、agent 字段完整 |
 | 选 harness 预设 | `scripts/harness-presets.js` | `resolve('claude')` → 查出 busy/idle 正则、startCmd 等 |
 
@@ -66,7 +66,7 @@
 
 | 操作 | 文件 | 做什么 |
 |------|------|--------|
-| 加载配置 | `scripts/lib/config.js` | 读 tinyman.config.json → 合并 DEFAULTS |
+| 加载配置 | `scripts/lib/config.js` | 读 tide.config.json → 合并 DEFAULTS |
 | 解析 CLI 参数 | `scripts/lib/cli-args.js` | `--staleness 180 --backlog 10 --loop-threshold 5` |
 | 构建检查列表 | — | 从 config.agents 派生 `[{session, label, stalenessSec}]` |
 | 检查消息积压 | — | `readdirSync(messagesDir)` → > 阈值则 alert |
@@ -83,14 +83,14 @@
 |------|------|--------|
 | 构建参数 | — | `--watch {dir} --session {name} --wake-cmd {cmd} --pattern {pattern} --poll-interval N --poll-cooldown N` |
 | 启动子进程 | — | `spawn('node', ['scripts/watcher.js', ...args], {detached: true, stdio: 'ignore'})` |
-| 写 PID 文件 | — | `os.tmpdir()/tinyman_watcher_{session}.pid` |
+| 写 PID 文件 | — | `os.tmpdir()/tide_watcher_{session}.pid` |
 
 **watcher.js 每个实例运行时：**
 
 | 操作 | 文件 | 做什么 |
 |------|------|--------|
 | 解析 CLI 参数 | `scripts/lib/cli-args.js` | 提取 watch/session/wake-cmd/pattern |
-| 加载配置 | `scripts/lib/config.js` | 读 tinyman.config.json → 合并 DEFAULTS → 取 harness |
+| 加载配置 | `scripts/lib/config.js` | 读 tide.config.json → 合并 DEFAULTS → 取 harness |
 | 加载 harness | `scripts/harness-presets.js` | `resolve(harness)` → 取 busy/idle 正则 |
 | 设置冷却文件 | — | `os.tmpdir()/watcher_{session}_cooldown` |
 | 主循环 | — | `while true`: |
@@ -107,6 +107,6 @@
 
 | 操作 | 文件 | 做什么 |
 |------|------|--------|
-| 扫描 PID 文件 | — | `os.tmpdir()` 下 `tinyman_watcher_*.pid` |
+| 扫描 PID 文件 | — | `os.tmpdir()` 下 `tide_watcher_*.pid` |
 | 逐个 kill | — | `process.kill(pid)` |
 | 清理 PID 文件 | — | `fs.unlinkSync` |

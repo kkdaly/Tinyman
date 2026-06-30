@@ -125,13 +125,13 @@ async function main() {
     const pidDir = os.tmpdir();
     let stopped = 0;
     fs.readdirSync(pidDir).forEach((f) => {
-      if (f.startsWith('tinyman_watcher_') && f.endsWith('.pid')) {
+      if (f.startsWith('tide_watcher_') && f.endsWith('.pid')) {
         const pidFile = path.join(pidDir, f);
         try {
           const pid = parseInt(fs.readFileSync(pidFile, 'utf8'), 10);
           process.kill(pid);
           fs.unlinkSync(pidFile);
-          console.log(`   已停止 ${f.replace('tinyman_watcher_', '').replace('.pid', '')} (PID: ${pid})`);
+          console.log(`   已停止 ${f.replace('tide_watcher_', '').replace('.pid', '')} (PID: ${pid})`);
           stopped++;
         } catch {
           // 进程可能已退出，清理 pid 文件
@@ -196,7 +196,7 @@ async function main() {
 
     let initCmd = `读${promptBase}和${identity}的IDENTITY和AGENTS`;
     if (identity === 'gateway') {
-      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。然后读 tinyman.config.json 获取项目配置`;
+      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。然后读 tide.config.json 获取项目配置`;
     }
     sendKeys(session, initCmd);
   }
@@ -227,7 +227,7 @@ async function main() {
     });
     child.unref();
 
-    const pidFile = path.join(os.tmpdir(), `tinyman_watcher_${a.session}.pid`);
+    const pidFile = path.join(os.tmpdir(), `tide_watcher_${a.session}.pid`);
     fs.writeFileSync(pidFile, String(child.pid));
     console.log(`   ${a.session} watcher PID: ${child.pid} (${pidFile})`);
   });

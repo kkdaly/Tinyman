@@ -5,7 +5,7 @@ const path = require('path');
 
 const DEFAULTS = {
   harness: 'claude',
-  projectName: 'Tinyman',
+  projectName: 'Tide',
   projectDesc: '',
   imPlatform: 'lark',
   promptBase: 'CONVENTIONS.md',
@@ -27,7 +27,7 @@ const DEFAULTS = {
 function loadConfig(rootDir) {
   let config;
   try {
-    config = JSON.parse(fs.readFileSync(path.join(rootDir, 'tinyman.config.json'), 'utf8'));
+    config = JSON.parse(fs.readFileSync(path.join(rootDir, 'tide.config.json'), 'utf8'));
   } catch {
     config = {};
   }
