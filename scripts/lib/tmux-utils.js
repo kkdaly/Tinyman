@@ -15,7 +15,12 @@ function tmux(args) {
 }
 
 function hasTmux() {
-  return tmux('list-sessions') !== null;
+  try {
+    execSync('command -v tmux', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function hasSession(session) {
@@ -45,7 +50,8 @@ function getSessionActivity(session) {
 }
 
 function sendKeys(session, cmd) {
-  return tmux(`send-keys -t "${session}" "${cmd}" C-m`);
+  const safe = cmd.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return tmux(`send-keys -t "${session}" "${safe}" C-m`);
 }
 
 function isAgentBusy(session, harness) {

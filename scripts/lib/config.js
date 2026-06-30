@@ -39,7 +39,8 @@ function loadConfig(rootDir) {
   };
 }
 
-const VALID_HARNESSES = ['claude', 'codex', 'trae', 'openclaw'];
+const { presets } = require('../harness-presets');
+const VALID_HARNESSES = Object.keys(presets);
 
 function validateConfig(config) {
   const errors = [];
