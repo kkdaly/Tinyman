@@ -26,9 +26,7 @@
 从消息 JSON 中提取 `event.sender.sender_id.open_id`：
 
 ```bash
-lark-cli api POST /open-apis/im/v1/messages \
-  --params '{"receive_id_type":"open_id"}' \
-  --data '{"receive_id":"<open_id>","msg_type":"text","content":"{\"text\":\"<回复内容，转义双引号>\"}"}'
+lark-cli im +messages-send --as bot --user-id <open_id> --text "<回复内容>"
 ```
 
 ### 其他 IM 平台
@@ -51,7 +49,7 @@ lark-cli api POST /open-apis/im/v1/messages \
 **读到消息后的第一件事——在查知识库、读代码之前——先点一个思考表情。** 用户发了消息却半天没反应 = 差体验。
 
 ```bash
-lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
+lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions --as bot \
   --data '{"reaction_type":{"emoji_type":"THINKING"}}'
 ```
 
